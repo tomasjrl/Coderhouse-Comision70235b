@@ -1,0 +1,15 @@
+<div class="cart-details">
+  <h1 class="title">Carrito</h1>
+  <ul class="cart-list">
+    {{#each products}}
+      <li class="cart">
+        <h2 class="title-cart">{{title}}</h2>
+        <h3>Cantidad:</h3>
+        {{quantity}}
+        <button class="btn-link">
+          <a href="/products/{{id}}">Ver detalles</a>
+        </button>
+      </li>
+    {{/each}}
+  </ul>
+</div>

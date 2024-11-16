@@ -1,0 +1,38 @@
+<div class="products-container single">
+  <h1 class="title">Producto</h1>
+  <div class="pagination single">
+    <a
+      href="{{backUrl}}"
+      title="Volver a productos"
+      aria-label="Volver a productos"
+    >
+      Volver
+    </a>
+  </div>
+  <ul class="products-list single">
+    <li class="product">
+      <h2 class="title-product">{{product.title}}</h2>
+      <h3>Descripción:</h3>
+      <p>{{product.description}}</p>
+      <h3>Código:</h3>
+      <p>{{product.code}}</p>
+      <h3>Precio:</h3>
+      <p>${{product.price}}</p>
+      <h3>Stock:</h3>
+      <p>{{product.stock}}</p>
+      <h3>Categoría:</h3>
+      <p>{{product.category}}</p>
+      <div class="btn-container">
+        <button
+          class="btn-primary single"
+          data-product-id="{{product.id}}"
+          id="add-to-cart-btn"
+        >
+          Agregar al carrito
+        </button>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<script src="/js/product-details.js"></script>

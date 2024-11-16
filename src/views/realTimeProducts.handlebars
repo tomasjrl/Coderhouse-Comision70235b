@@ -1,0 +1,58 @@
+<div class="container">
+  <form id="productForm" class="product-form">
+    <h1 class="title-form">Formulario</h1>
+    <div class="form-group">
+      <input type="text" id="title" placeholder="Título" required />
+    </div>
+    <div class="form-group">
+      <input type="text" id="description" placeholder="Descripción" required />
+    </div>
+    <div class="form-group">
+      <input type="text" id="code" placeholder="Código" required />
+    </div>
+    <div class="form-group">
+      <input type="number" id="price" placeholder="Precio" required />
+    </div>
+    <div class="form-group">
+      <input type="number" id="stock" placeholder="Stock" required />
+    </div>
+    <div class="form-group">
+      <input type="text" id="category" placeholder="Categoría" required />
+    </div>
+    <div class="form-group">
+      <select name="status" id="status" class="status-select" required>
+        <option value="true">Disponible</option>
+        <option value="false">No disponible</option>
+      </select>
+    </div>
+    <button type="submit" class="submit-btn">Crear Producto</button>
+  </form>
+
+  <div class="products-container">
+    <h1 class="title">Productos</h1>
+    <ul class="products-list" id="productsList">
+      {{#each products}}
+        <li class="product" id="product-{{id}}">
+          <h3>Descripción:</h3>
+          <p>{{description}}</p>
+          <h3>Código:</h3>
+          <p>{{code}}</p>
+          <h3>Precio:</h3>
+          <p>${{price}}</p>
+          <h3>Stock:</h3>
+          <p>{{stock}}</p>
+          <h3>Categoría:</h3>
+          <p>{{category}}</p>
+          <button
+            type="button"
+            class="submit-btn-delete"
+            data-id="{{id}}"
+          >Eliminar</button>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/realTimeProducts.js"></script>
