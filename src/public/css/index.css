@@ -363,7 +363,46 @@ h3 {
   background-color: #2f9733;
 }
 
-/* FALTAN ESTILOS PARA PROFILE.HANDLEBARS */
+.profile-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #474646;
+  border: 1px solid #d1d1d1;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.profile-title {
+  color: rgb(232, 232, 232);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.profile-welcome {
+  color: rgb(232, 232, 232);
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.logout-btn {
+  display: block;
+  width: fit-content;
+  margin: 20px auto;
+  padding: 10px;
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.logout-btn:hover {
+  background-color: #c62828;
+}
+
 
 @media (max-width: 768px) {
   .product-form {

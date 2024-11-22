@@ -7,6 +7,9 @@
     </ul>
   </nav>
 </header>
-<h1>Mi Perfil</h1>
-<p>Bienvenido! {{user.first_name}} - {{user.last_name}} </p>
-<a href="/api/sessions/logout">Logout</a>
+
+<div class="profile-container">
+  <h1 class="profile-title">Mi Perfil</h1>
+  <p class="profile-welcome">Bienvenido! {{user.first_name}} {{user.last_name}}</p>
+  <a href="/api/sessions/logout" class="logout-btn">Logout</a>
+</div>
