@@ -15,10 +15,12 @@ import helpers from "./utils/helpersHandlebars.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import session from "express-session";
-import FileStore from "session-file-store";
 import MongoStore from "connect-mongo";
+import sessionsRouter from "./routes/sessions.router.js";
+import "./database.js";
+// import passport from "passport";
+// import initializePassport from "./config/passport.config.js";
 
-const fileStore = FileStore(session);
 const app = express();
 const PORT = process.env.PORT || 8080;
 const server = http.createServer(app);
@@ -32,23 +34,25 @@ newHelpers.isSelected = function (value, sort) {
 };
 
 app.engine("handlebars", handlebars.engine({ helpers: newHelpers }));
-app.set("views", __dirname + "/views");
 app.set("view engine", "handlebars");
+app.set("views", __dirname + "/views");
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
+app.use(express.urlencoded({extended: true})); 
 app.use(cookieParser());
 app.use(session({
   secret: "secretCoder", //valor para firmar la cookie
   resave: true,
   saveUninitialized: true,
 
-  // store: new fileStore({path: "./src/sessions", ttl: 100, retries: 1}),
-
   store: MongoStore.create({
     mongoUrl: "mongodb+srv://usermongo:8wGHTRdShb2nNJU5@coder-cluster.fptla.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=Coder-Cluster", ttl: 100
   })
 
 }))
+// initializePassport();
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 process.env.USE_MONGODB_FOR_PRODUCTS = "true";
 process.env.USE_MONGODB_FOR_CARTS = "true"; 
@@ -126,20 +130,7 @@ connectToDatabase()
       "/realtimeproducts",
       viewsRouter(useMongoDBForProducts, useMongoDBForCarts)
     );
-
-app.get("/login", (req, res) => {
-  let usuario = req.query.usuario;
-
-  req.session.usuario = usuario;
-  res.send("Guardamos usuario por medio de query");
-})
-
-app.get("/usuario", (req,res) => {
-  if(req.session.usuario) {
-    return res.send(`El usuario esta registrado, su nombre es el siguiente: ${req.session.usuario}`);
-  }
-  res.send("No tenemos un usuario registrado.")
-})
+    app.use("/api/sessions", sessionsRouter);
 
     server.listen(PORT, () => {
       console.log(`Servidor escuchando en PORT ${PORT}`);
