@@ -18,8 +18,8 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import sessionsRouter from "./routes/sessions.router.js";
 import "./database.js";
-// import passport from "passport";
-// import initializePassport from "./config/passport.config.js";
+ import passport from "passport";
+ import initializePassport from "./config/passport.config.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -33,9 +33,6 @@ newHelpers.isSelected = function (value, sort) {
   return value === sort ? "selected" : "";
 };
 
-app.engine("handlebars", handlebars.engine({ helpers: newHelpers }));
-app.set("view engine", "handlebars");
-app.set("views", __dirname + "/views");
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
 app.use(express.urlencoded({extended: true})); 
@@ -50,9 +47,11 @@ app.use(session({
   })
 
 }))
-// initializePassport();
-// app.use(passport.initialize());
-// app.use(passport.session());
+
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 process.env.USE_MONGODB_FOR_PRODUCTS = "true";
 process.env.USE_MONGODB_FOR_CARTS = "true"; 
@@ -60,6 +59,10 @@ process.env.MONGODB_URI =
   "mongodb+srv://usermongo:8wGHTRdShb2nNJU5@coder-cluster.fptla.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=Coder-Cluster";
 
 const DB_URL = process.env.MONGODB_URI;
+
+app.engine("handlebars", handlebars.engine({ helpers: newHelpers }));
+app.set("view engine", "handlebars");
+app.set("views", __dirname + "/views");
 
 async function connectToDatabase() {
   try {
