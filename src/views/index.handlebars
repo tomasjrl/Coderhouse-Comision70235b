@@ -1,88 +1,56 @@
-<header>
-  <nav>
-    <ul>
-      <li><a href="/products">Productos</a></li>
-      <li><a href="/realtimeproducts">Formulario</a></li>
-      <li><a id="carrito" href="">Carrito</a></li>
-    </ul>
-  </nav>
-</header>
 <div class="products-container">
-    <h1 class="title">Productos</h1>
-    <div class="search options">
-  <form action="" method="get">
-    <input type="text" id="search-input" name="query" placeholder="Buscar productos">
-    <button type="submit" class="search-button">Buscar</button>
-  </form>
-</div>
-  <div class="options">
-<select id="sort-select" class="option-select" onchange="window.location.href='?{{#if category}}category={{category}}&{{/if}}{{#if page}}page={{page}}&{{/if}}{{#if limit}}limit={{limit}}&{{/if}}{{#if status}}status={{status}}&{{/if}}sort='+this.value">
-    <option value="">Ordenar por</option>
-    <option value="asc" {{isSelected "asc" sort}}">Menor precio</option>
-    <option value="desc" {{isSelected "desc" sort}}">Mayor precio</option>
-  </select>
-  
-  <select id="page-select" class="option-select" onchange="window.location.href='?sort={{sort}}&page='+this.value+'&limit={{limit}}'">
-    {{#forPages totalPages}}
-      <option value="{{this}}" {{isSelected this page}}>{{this}} de {{totalPages}}</option>
-    {{/forPages}}
-  </select>
-  
-<select id="limit-select" class="option-select" onchange="window.location.href='?{{#if sort}}sort={{sort}}&{{/if}}{{#if page}}page=1&{{/if}}{{#if category}}category={{category}}&{{/if}}{{#if status}}status={{status}}&{{/if}}limit='+this.value">
-  <option value="">Mostrar por página</option>
-  <option value="5" {{isSelected "5" limit}}>5 productos</option>
-  <option value="10" {{isSelected "10" limit}}>10 productos</option>
-  <option value="20" {{isSelected "20" limit}}>20 productos</option>
-  <option value="50" {{isSelected "50" limit}}>50 productos</option>
-</select>
+    <h1 class="title">Bienvenido a nuestra tienda</h1>
+    
+    <div class="auth-options" style="display: flex; justify-content: center; gap: 20px; margin-top: 40px;">
+        <a href="/login" style="text-decoration: none;">
+            <button class="submit-btn" style="width: 200px; background-color: #371ef4;">
+                Iniciar Sesión
+            </button>
+        </a>
+        
+        <a href="/register" style="text-decoration: none;">
+            <button class="submit-btn" style="width: 200px;">
+                Registrarse
+            </button>
+        </a>
+    </div>
 
-<select id="sort-select" class="option-select" onchange="window.location.href='?query={{query}}&{{#if category}}category={{category}}&{{/if}}{{#if page}}page={{page}}&{{/if}}{{#if limit}}limit={{limit}}&{{/if}}{{#if status}}status={{status}}&{{/if}}sort='+this.value">
-  <option value="">Todos</option>
-  <option value="true" {{isSelected "true" status}}>Disponibles</option>
-  <option value="false" {{isSelected "false" status}}>No disponibles</option>
-</select>
-
-<select id="category-select" class="option-select" onchange="window.location.href='?query={{query}}&{{#if sort}}sort={{sort}}&{{/if}}page=1&{{#if limit}}limit={{limit}}&{{/if}}{{#if status}}status={{status}}&{{/if}}category='+this.value">
-  <option value="">Todas las categorías</option>
-  {{#each categories}}
-    <option value="{{this}}" {{isSelected this ../category}}>{{this}}</option>
-  {{/each}}
-</select>
-  </div>  
-
-  <nav class="pagination">
-  {{#if_gt page 1}}
-    <a href="?query={{query}}&sort={{sort}}&page={{subtract page 1}}&limit={{limit}}&status={{status}}" title="Ir a la página anterior" aria-label="Página anterior">
-      Anterior
-    </a>
-  {{else}}
-    <span aria-label="Primera página">Primera página</span>
-  {{/if_gt}}
-  {{#if_gt totalPages page}}
-    <a href="?query={{query}}&sort={{sort}}&page={{add page 1}}&limit={{limit}}&status={{status}}" title="Ir a la página siguiente" aria-label="Página siguiente">
-      Siguiente
-    </a>
-  {{else}}
-    <span aria-label="Última página">No hay más páginas</span>
-  {{/if_gt}}
-</nav>
-  <ul class="products-list">
-    {{#each products}}
-    <li class="product">
-      <h2>{{title}}</h2>
-      <h3>Precio:</h3>
-      <p>${{price}}</p>
-      <button class="btn-link">
-        <a href="/products/{{id}}">Ver detalles</a>
-      </button>
-      <div class="btn-container">
-        <button class="btn-primary" data-product-id="{{this.id}}" id="add-to-cart-btn-{{this.id}}">
-          Agregar al carrito
-        </button>
-      </div>
-    </li>
-    {{/each}}
-  </ul>
+    <div class="features" style="margin-top: 60px; color: #fff; text-align: center;">
+        <h2 style="margin-bottom: 30px; color: #e8e8e8;">¿Por qué elegirnos?</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; padding: 0 20px;">
+            <div class="feature-card" style="background: #333; padding: 20px; border-radius: 10px; border: 1px solid #d1d1d1;">
+                <h3 style="color: #371ef4; margin-bottom: 10px;">Productos de Calidad</h3>
+                <p>Ofrecemos una amplia selección de productos de la mejor calidad.</p>
+            </div>
+            
+            <div class="feature-card" style="background: #333; padding: 20px; border-radius: 10px; border: 1px solid #d1d1d1;">
+                <h3 style="color: #371ef4; margin-bottom: 10px;">Precios Competitivos</h3>
+                <p>Encuentra los mejores precios del mercado en nuestra tienda.</p>
+            </div>
+            
+            <div class="feature-card" style="background: #333; padding: 20px; border-radius: 10px; border: 1px solid #d1d1d1;">
+                <h3 style="color: #371ef4; margin-bottom: 10px;">Envíos Seguros</h3>
+                <p>Garantizamos la entrega segura de tus productos en tiempo y forma.</p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<script src="/js/products.js"></script>
+<style>
+    .auth-options button {
+        transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    
+    .auth-options button:hover {
+        transform: translateY(-2px);
+    }
+    
+    .feature-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+</style>

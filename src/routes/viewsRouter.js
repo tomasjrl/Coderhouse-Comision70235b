@@ -17,6 +17,20 @@ const viewsRouter = (
     ? new CartManager()
     : new CartFileManager();
 
+
+    router.get("/", (req, res) => {
+      try {
+        res.render("index");
+      } catch (error) {
+        console.error("Error al renderizar la página de inicio:", error);
+        res.status(500).json({
+          status: "error",
+          message: "Error interno del servidor al cargar la página de inicio",
+          error: error.message
+        });
+      }
+    });
+
   const renderProductsView = async (
     req,
     res,
@@ -111,11 +125,10 @@ const viewsRouter = (
           };
         });
 
+      const categories = [...new Set(products.map(product => product.category))];
       const totalPages = Math.ceil(products.length / limit);
 
-      const categories = await productManager.getCategories();
-
-      res.render("index", {
+      res.render("product", {
         products: paginatedProducts,
         page,
         limit,
@@ -123,7 +136,8 @@ const viewsRouter = (
         sort,
         status,
         category,
-        categories,
+        query,
+        categories
       });
     } catch (error) {
       console.error(error);

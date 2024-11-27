@@ -138,7 +138,7 @@ connectToDatabase()
     server.listen(PORT, () => {
       console.log(`Servidor escuchando en PORT ${PORT}`);
       console.log(
-        `Puedes acceder con el link: http://localhost:${PORT}/products`
+        `Puedes acceder con el link: http://localhost:${PORT}/`
       );
     });
   })
