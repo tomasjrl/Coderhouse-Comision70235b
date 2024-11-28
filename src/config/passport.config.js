@@ -1,10 +1,30 @@
 // passport.config.js
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import UserModel from '../models/user.model.js'; // Ajusta según tu estructura
-import { createHash } from '../utils/hashbcryp.js'; // Asegúrate de tener esta función
+import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
+import UserModel from '../models/user.model.js'; 
+import { createHash, isValidPassword } from '../utils/hashbcryp.js'; 
+
+const JWT_SECRET = 'your-secret-key'; 
 
 const initializePassport = () => {
+    // JWT Strategy
+    passport.use('jwt', new JWTStrategy({
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        secretOrKey: JWT_SECRET
+    }, async (jwt_payload, done) => {
+        try {
+            const user = await UserModel.findById(jwt_payload.sub);
+            if (!user) {
+                return done(null, false, { message: 'Usuario no encontrado' });
+            }
+            return done(null, user);
+        } catch (error) {
+            return done(error, false);
+        }
+    }));
+
+    // Local Strategy - Register
     passport.use("register", new LocalStrategy({
         passReqToCallback: true,
         usernameField: "email"
@@ -13,25 +33,48 @@ const initializePassport = () => {
 
         try {
             let user = await UserModel.findOne({ email });
-            if (user) return done(null, false); // Si el usuario ya existe
+            if (user) {
+                return done(null, false, { message: 'El correo electrónico ya está registrado' });
+            }
 
             let newUser = new UserModel({
                 first_name,
                 last_name,
                 email,
                 age,
-                password: createHash(password) // Hashea la contraseña
+                password: createHash(password) 
             });
 
-            let result = await newUser.save(); // Guarda el nuevo usuario
-            return done(null, result); // Devuelve el usuario creado
+            let result = await newUser.save(); 
+            return done(null, result); 
+        } catch (error) {
+            return done(error);
+        }
+    }));
+
+    // Local Strategy - Login
+    passport.use('login', new LocalStrategy({
+        usernameField: 'email'
+    }, async (email, password, done) => {
+        try {
+            const user = await UserModel.findOne({ email });
+            
+            if (!user) {
+                return done(null, false, { message: 'Usuario no encontrado' });
+            }
+
+            if (!isValidPassword(password, user)) {
+                return done(null, false, { message: 'Contraseña incorrecta' });
+            }
+
+            return done(null, user);
         } catch (error) {
             return done(error);
         }
     }));
 
     passport.serializeUser((user, done) => {
-        done(null, user._id); // Usa _id para MongoDB
+        done(null, user._id); 
     });
 
     passport.deserializeUser(async (id, done) => {
@@ -44,4 +87,5 @@ const initializePassport = () => {
     });
 };
 
-export default initializePassport; // Asegúrate de que esta línea esté presente
+export { JWT_SECRET };
+export default initializePassport; 

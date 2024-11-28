@@ -3,6 +3,7 @@ import ProductManager from "../dao/managersDB/productManager.js";
 import ProductFileManager from "../dao/managersFS/productManager.js";
 import CartManager from "../dao/managersDB/cartManager.js";
 import CartFileManager from "../dao/managersFS/cartManager.js";
+import { isAuthenticated, redirectIfLoggedIn } from "../middlewares/auth.middleware.js";
 
 const viewsRouter = (
   useMongoDBForProducts = true,
@@ -17,60 +18,50 @@ const viewsRouter = (
     ? new CartManager()
     : new CartFileManager();
 
-
-    router.get("/", (req, res) => {
-      try {
-        res.render("index");
-      } catch (error) {
-        console.error("Error al renderizar la página de inicio:", error);
-        res.status(500).json({
-          status: "error",
-          message: "Error interno del servidor al cargar la página de inicio",
-          error: error.message
-        });
-      }
-    });
-
-  const renderProductsView = async (
-    req,
-    res,
-    viewName,
-    page = 1,
-    limit = 10
-  ) => {
+  // Rutas públicas
+  router.get("/", (req, res) => {
     try {
-      let products = await productManager.getAllProducts();
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-
-      const paginatedProducts = products
-        .slice(startIndex, endIndex)
-        .map((product) => {
-          return {
-            id: product._id.toString(),
-            title: product.title,
-            description: product.description,
-            code: product.code,
-            price: product.price,
-            stock: product.stock,
-            category: product.category,
-          };
-        });
-
-      const totalPages = Math.ceil(products.length / limit);
-      res.render(viewName, {
-        products: paginatedProducts,
-        page,
-        limit,
-        totalPages,
-      });
+      res.render("index");
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Error al obtener productos" });
+      console.error("Error al renderizar la página de inicio:", error);
+      res.status(500).json({
+        status: "error",
+        message: "Error interno del servidor al cargar la página de inicio",
+        error: error.message
+      });
     }
-  };
+  });
 
-  router.get("/products", async (req, res) => {
+  router.get("/login", redirectIfLoggedIn, (req, res) => {
+    try {
+      const error = req.query.error;
+      res.render("login", { error });
+    } catch (error) {
+      console.error("Error al renderizar la página de login:", error);
+      res.status(500).json({
+        status: "error",
+        message: "Error interno del servidor al cargar la página de login",
+        error: error.message
+      });
+    }
+  });
+
+  router.get("/register", redirectIfLoggedIn, (req, res) => {
+    try {
+      const error = req.query.error;
+      res.render("register", { error });
+    } catch (error) {
+      console.error("Error al renderizar la página de registro:", error);
+      res.status(500).json({
+        status: "error",
+        message: "Error interno del servidor al cargar la página de registro",
+        error: error.message
+      });
+    }
+  });
+
+  // Rutas protegidas
+  router.get("/products", isAuthenticated, async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const sort = req.query.sort;
@@ -145,7 +136,7 @@ const viewsRouter = (
     }
   });
 
-  router.get("/products/:id", async (req, res) => {
+  router.get("/products/:id", isAuthenticated, async (req, res) => {
     try {
       const id = req.params.id;
       const product = await productManager.getProductById(id);
@@ -171,7 +162,7 @@ const viewsRouter = (
     }
   });
 
-  router.get("/carts/:cid", async (req, res) => {
+  router.get("/carts/:cid", isAuthenticated, async (req, res) => {
     try {
       const cartId = req.params.cid;
       const cart = await cartManager.getCart(cartId);
@@ -198,33 +189,49 @@ const viewsRouter = (
     }
   });
 
-  router.get("/realtimeproducts", async (req, res) => {
+  router.get("/realtimeproducts", isAuthenticated, async (req, res) => {
     await renderProductsView(req, res, "realTimeProducts");
   });
 
-  router.get("/login", (req, res) => {
-
-    if(req.session.login) {
-        return res.redirect("/profile"); 
-    }
-    res.render("login"); 
-})
-
-router.get("/register", (req, res) => {
-
-    if(req.session.login) {
-        return res.redirect("/profile"); 
-    }
-    res.render("register"); 
-})
-
-router.get("/profile", (req, res) => {
-
+  router.get("/profile", isAuthenticated, (req, res) => {
     if(!req.session.login) {
-        return res.redirect("/login"); 
+      return res.redirect("/login"); 
     }
     res.render("profile", {user: req.session.user}); 
-})
+  })
+
+  const renderProductsView = async (req, res, viewName, page = 1, limit = 10) => {
+    try {
+      let products = await productManager.getAllProducts();
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+
+      const paginatedProducts = products
+        .slice(startIndex, endIndex)
+        .map((product) => {
+          return {
+            id: product._id.toString(),
+            title: product.title,
+            description: product.description,
+            code: product.code,
+            price: product.price,
+            stock: product.stock,
+            category: product.category,
+          };
+        });
+
+      const totalPages = Math.ceil(products.length / limit);
+      res.render(viewName, {
+        products: paginatedProducts,
+        page,
+        limit,
+        totalPages,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error al obtener productos" });
+    }
+  };
 
   return router;
 };

@@ -1,5 +1,12 @@
 <div class="product-form">
     <h1 class="title-form">Registro</h1>
+    {{#if error}}
+    <div class="form-group">
+        <div class="error-message">
+            {{error}}
+        </div>
+    </div>
+    {{/if}}
     <form action="/api/sessions/register" method="POST">
         <div class="form-group">
             <label for="first_name" class="status-label">Nombre:</label>
@@ -17,15 +24,47 @@
         </div>
 
         <div class="form-group">
-            <label for="password" class="status-label">Contraseña:</label>
-            <input type="password" name="password" required class="form-control" placeholder="Crea una contraseña" />
-        </div>
-
-        <div class="form-group">
             <label for="age" class="status-label">Edad:</label>
             <input type="number" name="age" required class="form-control" placeholder="Ingresa tu edad" />
         </div>
 
-        <button type="submit" class="submit-btn">Registrar</button>
+        <div class="form-group">
+            <label for="password" class="status-label">Contraseña:</label>
+            <input type="password" name="password" required class="form-control" placeholder="Ingresa tu contraseña" />
+        </div>
+
+        <button type="submit" class="submit-btn">Registrarse</button>
     </form>
+    <div class="form-group">
+        <p class="status-label" style="text-align: center;">¿Ya tienes una cuenta? <a href="/login" style="color: #4caf50;">Inicia sesión aquí</a></p>
+    </div>
 </div>
+
+<style>
+.alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.form-footer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.form-footer a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+</style>

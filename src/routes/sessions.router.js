@@ -1,98 +1,123 @@
 import { Router } from "express";
 const router = Router(); 
 import { createHash, isValidPassword } from "../utils/hashbcryp.js";
-//No se olviden de importar el UserModel!
-
 import UserModel from "../models/user.model.js";
-
-//1) VAMOS A REGISTRAR UN USUARIO: 
-
-// router.post("/register", async (req, res) => {
-//     const {first_name, last_name, email, password, age} = req.body; 
-
-//     try {
-//         //1) Vamos a verificar si el correo electronica ya esta registrado: 
-//         const existeUsuario = await UserModel.findOne({email: email}); 
-
-//         if(existeUsuario) {
-//             return res.status(400).send({error: "El correo electronico ya esta registrado"}); 
-//         }
-
-//         //Si no lo encuentra, creamos un nuevo User: 
-//         const nuevoUsuario = await UserModel.create({first_name, last_name, email, password:createHash(password), age})
-
-//         res.redirect("/login");
-//         // //Almacenamos info del usuario en la sesion (pueden ajustarlo segun sus necesidades)
-//         // req.session.user = {
-//         //     first_name: nuevoUsuario.first_name, 
-//         //     last_name: nuevoUsuario.last_name
-//         // }
-
-//         // res.status(200).send({mensaje: "Usuario creado con exitoooo, siiiiiii"});
-//     } catch (error) {
-//         res.send({error: "Error al crear el usuario"});
-//     }
-// })
-
-//VERSION DE REGISTRO CON PASSPORT: 
 import passport from "passport";
 
-router.post("/register", passport.authenticate("register", {}) ,async (req, res) => {
+const isAPI = (req) => req.headers['content-type'] === 'application/json';
 
-    req.session.user = {
-        first_name: req.user.first_name, 
-        last_name: req.user.last_name
-    } 
-
-    req.session.login = true;
-
-    res.redirect("/profile"); 
-})
-
-
-//2) VAMOS A LOGUEARNOS: 
-
-router.post("/login", async (req, res) => {
-    const {email, password} = req.body; 
-
-    try {
-        //Buscamos el usuario: 
-        const usuario = await UserModel.findOne({email: email}); 
-
-        //Si lo encuentro
-        if(usuario) {
-            //Verificamos la contraseña con isValidPassword. 
-            if(isValidPassword(password, usuario)) {            
-                //Si la contraseña coincide creo la session: 
-                req.session.login = true; 
-                req.session.user = {
-                    first_name: usuario.first_name, 
-                    last_name: usuario.last_name
-                }
-                //res.status(200).send({mensaje: "Login Correcto! Ma jes tuo seishon"}); 
-
-                res.redirect("/profile");
-            } else {
-                res.send({error: "La contraseña que me pasaste es horrible!"});
+//Register con Passport
+router.post("/register", (req, res, next) => {
+    passport.authenticate("register", (err, user, info) => {
+        if (err) {
+            if (isAPI(req)) {
+                return res.status(500).json({ 
+                    status: "error", 
+                    error: "Error al registrar el usuario" 
+                });
             }
-
-        } else {
-            //Si no encuentro al usuario, podemos cerrar la operacion con el siguiente mensaje: 
-            res.send({error: "Usuario no encontrado"});
+            return res.redirect('/register?error=' + encodeURIComponent("Error al registrar el usuario"));
         }
-    } catch (error) {
-        res.send({error: "Error en todo el proceso de Login"}); 
-    }
-})
+        if (!user) {
+            const errorMessage = info.message || "El usuario ya existe";
+            if (isAPI(req)) {
+                return res.status(400).json({ 
+                    status: "error", 
+                    error: errorMessage 
+                });
+            }
+            return res.redirect('/register?error=' + encodeURIComponent(errorMessage));
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                return next(err);
+            }
+            req.session.user = {
+                first_name: user.first_name,
+                last_name: user.last_name
+            };
+            req.session.login = true;
+
+            if (isAPI(req)) {
+                return res.status(201).json({ 
+                    status: "success", 
+                    message: "Usuario registrado exitosamente",
+                    user: {
+                        id: user._id,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        email: user.email,
+                        role: user.role
+                    }
+                });
+            }
+            return res.redirect("/profile");
+        });
+    })(req, res, next);
+});
+
+//Login con Passport
+router.post("/login", (req, res, next) => {
+    passport.authenticate("login", (err, user, info) => {
+        if (err) {
+            if (isAPI(req)) {
+                return res.status(500).json({ 
+                    status: "error", 
+                    error: "Error en el servidor" 
+                });
+            }
+            return res.redirect('/login?error=' + encodeURIComponent("Error en el servidor"));
+        }
+        if (!user) {
+            const errorMessage = info.message || "Credenciales inválidas";
+            if (isAPI(req)) {
+                return res.status(401).json({ 
+                    status: "error", 
+                    error: errorMessage 
+                });
+            }
+            return res.redirect('/login?error=' + encodeURIComponent(errorMessage));
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                return next(err);
+            }
+            req.session.user = {
+                first_name: user.first_name,
+                last_name: user.last_name
+            };
+            req.session.login = true;
+
+            if (isAPI(req)) {
+                return res.status(200).json({ 
+                    status: "success", 
+                    message: "Login exitoso",
+                    user: {
+                        id: user._id,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        email: user.email,
+                        role: user.role
+                    }
+                });
+            }
+            return res.redirect("/profile");
+        });
+    })(req, res, next);
+});
 
 //Logout
-
 router.get("/logout", (req, res) => {
     if(req.session.login) {
         req.session.destroy(); 
     }
+    if (isAPI(req)) {
+        return res.status(200).json({ 
+            status: "success", 
+            message: "Sesión cerrada exitosamente" 
+        });
+    }
     res.redirect("/login"); 
-})
+});
 
-
-export default router; 
+export default router;

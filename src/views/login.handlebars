@@ -1,5 +1,12 @@
 <div class="product-form">
     <h1 class="title-form">Iniciar Sesión</h1>
+    {{#if error}}
+    <div class="form-group">
+        <div class="error-message">
+            {{error}}
+        </div>
+    </div>
+    {{/if}}
     <form action="/api/sessions/login" method="POST">
         <div class="form-group">
             <label for="email" class="status-label">Email:</label>
@@ -13,4 +20,36 @@
 
         <button type="submit" class="submit-btn">Iniciar Sesión</button>
     </form>
+    <div class="form-group">
+        <p class="status-label" style="text-align: center;">¿No tienes una cuenta? <a href="/register" style="color: #4caf50;">Regístrate aquí</a></p>
+    </div>
 </div>
+
+<style>
+.alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.form-footer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.form-footer a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+</style>

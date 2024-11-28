@@ -7,6 +7,7 @@ import { dirname } from "path";
 import viewsRouter from "./routes/viewsRouter.js";
 import cartRouter, { initializeCartRouter } from "./routes/cartRouter.js";
 import productRouter from "./routes/productRouter.js";
+import authRouter from "./routes/auth.routes.js";
 import ProductManager from "./dao/managersDB/productManager.js";
 import ProductFileManager from "./dao/managersFS/productManager.js";
 import CartManager from "./dao/managersDB/cartManager.js";
@@ -18,8 +19,9 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import sessionsRouter from "./routes/sessions.router.js";
 import "./database.js";
- import passport from "passport";
- import initializePassport from "./config/passport.config.js";
+import passport from "passport";
+import initializePassport from "./config/passport.config.js";
+import flash from 'connect-flash';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -37,21 +39,24 @@ app.use(express.static(__dirname + "/public"));
 app.use(express.json());
 app.use(express.urlencoded({extended: true})); 
 app.use(cookieParser());
-app.use(session({
-  secret: "secretCoder", //valor para firmar la cookie
-  resave: true,
-  saveUninitialized: true,
+app.use(flash());
 
-  store: MongoStore.create({
-    mongoUrl: "mongodb+srv://usermongo:8wGHTRdShb2nNJU5@coder-cluster.fptla.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=Coder-Cluster", ttl: 100
-  })
-
-}))
-
+// Initialize Passport before sessions
 initializePassport();
 app.use(passport.initialize());
-app.use(passport.session());
 
+// Session configuration
+app.use(session({
+  secret: "secretCoder",
+  resave: true,
+  saveUninitialized: true,
+  store: MongoStore.create({
+    mongoUrl: "mongodb+srv://usermongo:8wGHTRdShb2nNJU5@coder-cluster.fptla.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=Coder-Cluster",
+    ttl: 100
+  })
+}))
+
+app.use(passport.session());
 
 process.env.USE_MONGODB_FOR_PRODUCTS = "true";
 process.env.USE_MONGODB_FOR_CARTS = "true"; 
@@ -134,6 +139,7 @@ connectToDatabase()
       viewsRouter(useMongoDBForProducts, useMongoDBForCarts)
     );
     app.use("/api/sessions", sessionsRouter);
+    app.use('/api/auth', authRouter);
 
     server.listen(PORT, () => {
       console.log(`Servidor escuchando en PORT ${PORT}`);

@@ -1,0 +1,15 @@
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/" class="nav-logo">E-commerce</a>
+        <div class="nav-links">
+            {{#if session.login}}
+                <a href="/products" class="nav-link">Productos</a>
+                <a href="/profile" class="nav-link">Perfil</a>
+                <a href="/api/sessions/logout" class="nav-link">Cerrar Sesión</a>
+            {{else}}
+                <a href="/login" class="nav-link">Iniciar Sesión</a>
+                <a href="/register" class="nav-link">Registrarse</a>
+            {{/if}}
+        </div>
+    </div>
+</nav>
