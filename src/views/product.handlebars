@@ -4,12 +4,19 @@
       <li><a href="/products">Productos</a></li>
       <li><a href="/realtimeproducts">Formulario</a></li>
       <li><a id="carrito" href="">Carrito</a></li>
+      <li><a href="/profile">Perfil</a></li>
     </ul>
   </nav>
 </header>
 <div class="products-container">
-    <h1 class="title">Productos</h1>
-    <div class="search options">
+  {{#if user}}
+  <div class="welcome-message">
+    <h2>¡Bienvenido/a, {{user.first_name}} {{user.last_name}}!</h2>
+  </div>
+  {{/if}}
+  
+  <h1 class="title">Productos</h1>
+  <div class="search options">
   <form action="" method="get">
     <input type="text" id="search-input" name="query" placeholder="Buscar productos">
     <button type="submit" class="search-button">Buscar</button>
@@ -84,5 +91,22 @@
     {{/each}}
   </ul>
 </div>
+
+<style>
+.welcome-message {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.welcome-message h2 {
+    color: #333;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+</style>
 
 <script src="/js/products.js"></script>

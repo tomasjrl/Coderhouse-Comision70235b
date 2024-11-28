@@ -3,6 +3,8 @@ const router = Router();
 import { createHash, isValidPassword } from "../utils/hashbcryp.js";
 import UserModel from "../models/user.model.js";
 import passport from "passport";
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config/passport.config.js';
 
 const isAPI = (req) => req.headers['content-type'] === 'application/json';
 
@@ -88,6 +90,25 @@ router.post("/login", (req, res, next) => {
             };
             req.session.login = true;
 
+            // Generar token JWT
+            const token = jwt.sign(
+                { 
+                    sub: user._id,
+                    email: user.email,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    role: user.role
+                },
+                JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+
+            // Establecer la cookie con el token
+            res.cookie('coderCookie', token, {
+                maxAge: 24 * 60 * 60 * 1000, // 24 horas
+                httpOnly: true
+            });
+
             if (isAPI(req)) {
                 return res.status(200).json({ 
                     status: "success", 
@@ -101,9 +122,30 @@ router.post("/login", (req, res, next) => {
                     }
                 });
             }
-            return res.redirect("/profile");
+            return res.redirect("/products");
         });
     })(req, res, next);
+});
+
+// Ruta /current para obtener el usuario actual
+router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ 
+            status: "error", 
+            error: "No hay usuario autenticado" 
+        });
+    }
+
+    res.json({ 
+        status: "success",
+        user: {
+            id: req.user._id,
+            email: req.user.email,
+            first_name: req.user.first_name,
+            last_name: req.user.last_name,
+            role: req.user.role
+        }
+    });
 });
 
 //Logout

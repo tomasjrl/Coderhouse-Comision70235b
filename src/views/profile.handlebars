@@ -4,6 +4,7 @@
       <li><a href="/products">Productos</a></li>
       <li><a href="/realtimeproducts">Formulario</a></li>
       <li><a id="carrito" href="">Carrito</a></li>
+      <li><a href="/profile">Perfil</a></li>
     </ul>
   </nav>
 </header>
@@ -13,3 +14,41 @@
   <p class="profile-welcome">Bienvenido! {{user.first_name}} {{user.last_name}}</p>
   <a href="/api/sessions/logout" class="logout-btn">Logout</a>
 </div>
+
+<style>
+.profile-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.profile-title {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.profile-welcome {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 2rem;
+  font-size: 1.2rem;
+}
+
+.logout-btn {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+  background-color: #dc3545;
+  color: white;
+  padding: 0.8rem 2rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+</style>

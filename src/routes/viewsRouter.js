@@ -4,6 +4,7 @@ import ProductFileManager from "../dao/managersFS/productManager.js";
 import CartManager from "../dao/managersDB/cartManager.js";
 import CartFileManager from "../dao/managersFS/cartManager.js";
 import { isAuthenticated, redirectIfLoggedIn } from "../middlewares/auth.middleware.js";
+import UserModel from '../models/user.model.js';
 
 const viewsRouter = (
   useMongoDBForProducts = true,
@@ -128,7 +129,9 @@ const viewsRouter = (
         status,
         category,
         query,
-        categories
+        categories,
+        user: req.session.user,
+        session: req.session
       });
     } catch (error) {
       console.error(error);
@@ -198,7 +201,7 @@ const viewsRouter = (
       return res.redirect("/login"); 
     }
     res.render("profile", {user: req.session.user}); 
-  })
+  });
 
   const renderProductsView = async (req, res, viewName, page = 1, limit = 10) => {
     try {

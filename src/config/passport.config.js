@@ -10,7 +10,16 @@ const JWT_SECRET = 'your-secret-key';
 const initializePassport = () => {
     // JWT Strategy
     passport.use('jwt', new JWTStrategy({
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        jwtFromRequest: ExtractJwt.fromExtractors([
+            ExtractJwt.fromAuthHeaderAsBearerToken(),
+            (req) => {
+                let token = null;
+                if (req && req.cookies) {
+                    token = req.cookies['coderCookie'];
+                }
+                return token;
+            }
+        ]),
         secretOrKey: JWT_SECRET
     }, async (jwt_payload, done) => {
         try {
