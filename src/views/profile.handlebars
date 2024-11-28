@@ -12,6 +12,7 @@
 <div class="profile-container">
   <h1 class="profile-title">Mi Perfil</h1>
   <p class="profile-welcome">Bienvenido! {{user.first_name}} {{user.last_name}}</p>
+  <p class="profile-role">Rol: {{user.role}}</p>
   <a href="/api/sessions/logout" class="logout-btn">Logout</a>
 </div>
 
@@ -29,11 +30,16 @@
   font-size: 2rem;
 }
 
-.profile-welcome {
+.profile-welcome, .profile-role {
   text-align: center;
   color: #fff;
   margin-bottom: 2rem;
   font-size: 1.2rem;
+}
+
+.profile-role {
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 .logout-btn {

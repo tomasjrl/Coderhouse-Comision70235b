@@ -21,14 +21,54 @@ router.post("/register", (req, res, next) => {
             return res.redirect('/register?error=' + encodeURIComponent("Error al registrar el usuario"));
         }
         if (!user) {
-            const errorMessage = info.message || "El usuario ya existe";
-            if (isAPI(req)) {
-                return res.status(400).json({ 
-                    status: "error", 
-                    error: errorMessage 
-                });
+            let newUser = new UserModel({
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                email: req.body.email,
+                age: req.body.age,
+                password: createHash(req.body.password),
+                role: "usuario"  // Rol por defecto para nuevos usuarios
+            });
+
+            let result = newUser.save(); 
+
+            if (!result) {
+                const errorMessage = info.message || "El usuario ya existe";
+                if (isAPI(req)) {
+                    return res.status(400).json({ 
+                        status: "error", 
+                        error: errorMessage 
+                    });
+                }
+                return res.redirect('/register?error=' + encodeURIComponent(errorMessage));
             }
-            return res.redirect('/register?error=' + encodeURIComponent(errorMessage));
+            req.logIn(newUser, (err) => {
+                if (err) {
+                    return next(err);
+                }
+                req.session.user = {
+                    first_name: newUser.first_name,
+                    last_name: newUser.last_name,
+                    email: newUser.email,
+                    role: newUser.role || 'usuario'
+                };
+                req.session.login = true;
+
+                if (isAPI(req)) {
+                    return res.status(201).json({ 
+                        status: "success", 
+                        message: "Usuario registrado exitosamente",
+                        user: {
+                            id: newUser._id,
+                            first_name: newUser.first_name,
+                            last_name: newUser.last_name,
+                            email: newUser.email,
+                            role: newUser.role
+                        }
+                    });
+                }
+                return res.redirect("/profile");
+            });
         }
         req.logIn(user, (err) => {
             if (err) {
@@ -36,7 +76,9 @@ router.post("/register", (req, res, next) => {
             }
             req.session.user = {
                 first_name: user.first_name,
-                last_name: user.last_name
+                last_name: user.last_name,
+                email: user.email,
+                role: user.role || 'usuario'
             };
             req.session.login = true;
 
@@ -60,6 +102,21 @@ router.post("/register", (req, res, next) => {
 
 //Login con Passport
 router.post("/login", (req, res, next) => {
+    const { email, password } = req.body;
+
+    // Verificar si es el admin
+    if (email === "adminCoder@coder.com" && password === "adminCod3r123") {
+        req.session.user = {
+            first_name: "Admin",
+            last_name: "Coder",
+            email: "adminCoder@coder.com",
+            role: "admin"
+        };
+        req.session.login = true;
+        return res.redirect("/products");
+    }
+
+    // Si no es admin, continuar con la autenticación normal
     passport.authenticate("login", (err, user, info) => {
         if (err) {
             if (isAPI(req)) {
@@ -86,7 +143,9 @@ router.post("/login", (req, res, next) => {
             }
             req.session.user = {
                 first_name: user.first_name,
-                last_name: user.last_name
+                last_name: user.last_name,
+                email: user.email,
+                role: user.role || 'usuario'
             };
             req.session.login = true;
 

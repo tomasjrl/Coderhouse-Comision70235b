@@ -102,8 +102,6 @@ connectToDatabase()
     initializeCartRouter(useMongoDBForCarts);
 
     io.on("connection", async (socket) => {
-      console.log("Un cliente se ha conectado a socket (realtimeproducts)");
-
       const products = await productManager.getAllProducts();
       socket.emit("products", products);
 
@@ -124,11 +122,7 @@ connectToDatabase()
         io.emit("products", products); 
       });
 
-      socket.on("disconnect", () => {
-        console.log(
-          "Un cliente se ha desconectado de socket (realtimeproducts)"
-        );
-      });
+      socket.on("disconnect", () => {});
     });
 
     app.use("/", viewsRouter(useMongoDBForProducts, useMongoDBForCarts));
