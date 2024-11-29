@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import UserModel from '../models/user.model.js';
+import UserModel from '../dao/models/user.model.js';
 
 const updateUserRoles = async () => {
     try {

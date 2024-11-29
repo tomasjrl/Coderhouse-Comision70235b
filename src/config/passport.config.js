@@ -2,7 +2,7 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
-import UserModel from '../models/user.model.js'; 
+import UserModel from '../dao/models/user.model.js'; 
 import { createHash, isValidPassword } from '../utils/hashbcryp.js'; 
 
 const JWT_SECRET = 'your-secret-key'; 

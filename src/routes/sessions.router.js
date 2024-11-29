@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router(); 
 import { createHash, isValidPassword } from "../utils/hashbcryp.js";
-import UserModel from "../models/user.model.js";
+import UserModel from "../dao/models/user.model.js";
 import passport from "passport";
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/passport.config.js';

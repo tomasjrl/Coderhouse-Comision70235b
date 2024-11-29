@@ -4,7 +4,6 @@ import ProductFileManager from "../dao/managersFS/productManager.js";
 import CartManager from "../dao/managersDB/cartManager.js";
 import CartFileManager from "../dao/managersFS/cartManager.js";
 import { isAuthenticated, redirectIfLoggedIn } from "../middlewares/auth.middleware.js";
-import UserModel from '../models/user.model.js';
 
 const viewsRouter = (
   useMongoDBForProducts = true,
