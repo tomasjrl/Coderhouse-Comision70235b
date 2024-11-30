@@ -1,0 +1,130 @@
+<style>
+    .card {
+        background-color: var(--form-bg);
+        border-color: var(--border-color);
+    }
+
+    .card-body {
+        color: var(--text-color);
+    }
+
+    .table {
+        color: var(--text-color);
+    }
+
+    .table thead th {
+        background-color: var(--table-header-bg);
+        border-color: var(--border-color);
+        color: var(--primary-color);
+    }
+
+    .table td {
+        border-color: var(--border-color);
+    }
+
+    .table tbody tr:hover {
+        background-color: var(--hover-bg);
+    }
+
+    .text-muted {
+        color: var(--secondary-color) !important;
+    }
+
+    .form-control {
+        background-color: var(--bg-color);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .form-control:focus {
+        background-color: var(--bg-color);
+        border-color: var(--primary-color);
+        color: var(--text-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #198754;
+        border-color: #198754;
+        color: white;
+    }
+
+    .alert-info {
+        background-color: var(--form-bg);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .alert-info a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    .alert-info a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="container">
+    <h2 class="mb-4">Mi Carrito</h2>
+
+    {{#if products.length}}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each products}}
+                                <tr>
+                                    <td>
+                                        <h5>{{this.title}}</h5>
+                                        <p class="text-muted">{{this.description}}</p>
+                                    </td>
+                                    <td>{{formatPrice this.price}}</td>
+                                    <td>
+                                        <span class="quantity-display">{{this.quantity}}</span>
+                                    </td>
+                                    <td>{{formatPrice (multiply this.price this.quantity)}}</td>
+                                </tr>
+                            {{/each}}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td>
+                                    <strong>
+                                        {{formatPrice (reduce products (lambda 'acc' 'item' '(add acc (multiply item.price item.quantity))') 0)}}
+                                    </strong>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {{else}}
+        <div class="alert alert-info">
+            Tu carrito está vacío. <a href="/products">Ver productos</a>
+        </div>
+    {{/if}}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cartId = '{{cart._id}}';
+});
+</script>

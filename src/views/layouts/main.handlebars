@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Dark mode variables */
+        :root[data-theme="light"] {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --hover-bg: #f8f9fa;
+            --form-bg: #f5f5f5;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --table-header-bg: #f5f5f5;
+            --button-text: #ffffff;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --primary-color: #0d6efd;
+            --secondary-color: #495057;
+            --border-color: #404040;
+            --hover-bg: #2d2d2d;
+            --form-bg: #2d2d2d;
+            --success-bg: #1e4620;
+            --success-text: #75b798;
+            --error-bg: #420f14;
+            --error-text: #ea868f;
+            --table-header-bg: #2d2d2d;
+            --button-text: #ffffff;
+        }
+
+        /* Global styles */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background-color: var(--form-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            font-size: 1.2rem;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--hover-bg);
+            transform: scale(1.1);
+        }
+
+        .theme-toggle .theme-icon {
+            transition: transform 0.3s ease;
+        }
+
+        /* Navigation bar */
+        .navbar {
+            background-color: var(--form-bg);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        .nav-links a:hover {
+            background-color: var(--hover-bg);
+        }
+
+        /* Content container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Remove hover effects and shadows */
+        .card:hover,
+        .btn:hover,
+        .nav-link:hover,
+        .navbar-brand:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            transition: none !important;
+        }
+
+        .card {
+            box-shadow: none !important;
+            transition: none !important;
+        }
+
+        .colored-toast.swal2-icon-success {
+            background-color: var(--success-bg) !important;
+            color: var(--success-text) !important;
+        }
+        .colored-toast.swal2-icon-error {
+            background-color: var(--error-bg) !important;
+            color: var(--error-text) !important;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <span class="theme-icon">🌞</span>
+    </button>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand">E-commerce</span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {{#if user}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/products">Productos</a>
+                    </li>
+                    {{#if (eq user.role "admin")}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/realtimeproducts">Gestionar</a>
+                        </li>
+                    {{else}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/carts/{{user.cart}}">Mi Carrito</a>
+                        </li>
+                    {{/if}}
+                    {{/if}}
+                </ul>
+                <ul class="navbar-nav">
+                    {{#if user}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/profile">Mi Perfil</a>
+                        </li>
+                        <li class="nav-item">
+                            <form action="/api/sessions/logout" method="POST" style="display: inline;">
+                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">Cerrar Sesión</button>
+                            </form>
+                        </li>
+                    {{else}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Iniciar Sesión</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register">Registrarse</a>
+                        </li>
+                    {{/if}}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {{{body}}}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const themeIcon = document.querySelector('.theme-icon');
+            themeIcon.textContent = newTheme === 'light' ? '🌞' : '🌙';
+        }
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.querySelector('.theme-icon').textContent = savedTheme === 'light' ? '🌞' : '🌙';
+
+        function showNotification(options) {
+            return Swal.fire({
+                title: options.title,
+                text: options.text,
+                icon: options.icon,
+                toast: options.toast || false,
+                position: options.position || 'top-end',
+                showConfirmButton: options.showConfirmButton || false,
+                timer: options.timer || 3000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'colored-toast'
+                }
+            });
+        }
+    </script>
+</body>
+</html>

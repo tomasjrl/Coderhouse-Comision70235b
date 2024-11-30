@@ -1,0 +1,321 @@
+<style>
+    .card {
+        background-color: var(--form-bg);
+        border-color: var(--border-color);
+        transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-body {
+        color: var(--text-color);
+    }
+
+    .card-title {
+        color: var(--text-color);
+    }
+
+    .card-text {
+        color: var(--text-color);
+    }
+
+    .form-label {
+        color: var(--text-color);
+    }
+
+    .form-select {
+        background-color: var(--bg-color);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
+    }
+
+    .form-control {
+        background-color: var(--bg-color);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .form-control:focus {
+        background-color: var(--bg-color);
+        border-color: var(--primary-color);
+        color: var(--text-color);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--button-text);
+    }
+
+    .btn-primary:hover {
+        opacity: 0.9;
+    }
+
+    .btn-info {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: var(--button-text);
+    }
+
+    .btn-info:hover {
+        opacity: 0.9;
+    }
+
+    .pagination .page-link {
+        background-color: var(--form-bg);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .pagination .page-link:hover {
+        background-color: var(--hover-bg);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--button-text);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: var(--form-bg);
+        border-color: var(--border-color);
+        color: var(--secondary-color);
+    }
+</style>
+
+<div class="container">
+    <h2 class="mb-4">Productos</h2>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form id="filterForm" method="GET">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="category" class="form-label">Categoría:</label>
+                                <select class="form-select" name="category" id="category">
+                                    <option value="">Todas</option>
+                                    {{#each categories}}
+                                        <option value="{{this}}" {{#if (eq ../category this)}}selected{{/if}}>{{this}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="sort" class="form-label">Ordenar por precio:</label>
+                                <select class="form-select" name="sort" id="sort">
+                                    <option value="">Sin orden</option>
+                                    <option value="asc" {{#if (eq sort "asc")}}selected{{/if}}>Menor a mayor</option>
+                                    <option value="desc" {{#if (eq sort "desc")}}selected{{/if}}>Mayor a menor</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="query" class="form-label">Buscar:</label>
+                                <input type="text" class="form-control" name="query" id="query" value="{{query}}">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Aplicar filtros</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de productos -->
+    <div class="row">
+        {{#each products}}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.title}}</h5>
+                        <p class="card-text">{{this.description}}</p>
+                        <p class="card-text"><strong>Precio:</strong> {{formatPrice this.price}}</p>
+                        <p class="card-text"><strong>Stock:</strong> {{this.stock}}</p>
+                        <p class="card-text"><strong>Categoría:</strong> {{this.category}}</p>
+                        <div class="d-grid gap-2">
+                            <a href="/products/{{this.id}}" class="btn btn-info">Ver detalles</a>
+                            {{#if ../user}}
+                                <button class="btn btn-primary add-to-cart" data-product-id="{{this.id}}">
+                                    Agregar al carrito
+                                </button>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+
+    <!-- Paginación -->
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {{#if (gt page 1)}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{subtract page 1}}&limit={{limit}}{{#if sort}}&sort={{sort}}{{/if}}{{#if category}}&category={{category}}{{/if}}{{#if query}}&query={{query}}{{/if}}">Anterior</a>
+                </li>
+            {{/if}}
+            
+            {{#each (range 1 totalPages)}}
+                <li class="page-item {{#if (eq this ../page)}}active{{/if}}">
+                    <a class="page-link" href="?page={{this}}&limit={{../limit}}{{#if ../sort}}&sort={{../sort}}{{/if}}{{#if ../category}}&category={{../category}}{{/if}}{{#if ../query}}&query={{../query}}{{/if}}">{{this}}</a>
+                </li>
+            {{/each}}
+
+            {{#if (lt page totalPages)}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{add page 1}}&limit={{limit}}{{#if sort}}&sort={{sort}}{{/if}}{{#if category}}&category={{category}}{{/if}}{{#if query}}&query={{query}}{{/if}}">Siguiente</a>
+                </li>
+            {{/if}}
+        </ul>
+    </nav>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+    
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const productId = this.dataset.productId;
+            try {
+                const response = await fetch(`/api/carts/{{user.cart}}/product/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ quantity: 1 })
+                });
+                
+                if (response.ok) {
+                    alert('Producto agregado al carrito');
+                } else {
+                    throw new Error('Error al agregar al carrito');
+                }
+            } catch (error) {
+                alert('Error al agregar el producto al carrito');
+                console.error('Error:', error);
+            }
+        });
+    });
+});
+</script>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            {{#if product.thumbnails.[0]}}
+                <img src="{{product.thumbnails.[0]}}" class="img-fluid rounded" alt="{{product.title}}">
+            {{else}}
+                <div class="bg-light rounded p-5 text-center">
+                    <i class="fas fa-image fa-4x text-muted"></i>
+                </div>
+            {{/if}}
+        </div>
+        <div class="col-md-6">
+            <h1 class="mb-3">{{product.title}}</h1>
+            <p class="lead">{{product.description}}</p>
+            <p><strong>Categoría:</strong> {{product.category}}</p>
+            <p><strong>Precio:</strong> ${{product.price}}</p>
+            <p><strong>Stock disponible:</strong> {{product.stock}}</p>
+            
+            {{#if user}}
+                {{#unless (eq user.role "admin")}}
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Cantidad:</label>
+                        <input type="number" class="form-control" id="quantity" min="1" max="{{product.stock}}" value="1" style="max-width: 100px;">
+                    </div>
+                    <button class="btn btn-primary" onclick="addToCart('{{product._id}}', event)">
+                        Agregar al carrito
+                    </button>
+                {{/unless}}
+            {{/if}}
+            
+            <div class="mt-3">
+                <a href="/products" class="btn btn-outline-secondary">Volver a productos</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const cartId = '{{user.cart}}';
+    console.log('Cart ID:', cartId);
+
+    async function addToCart(productId, event) {
+        if (!cartId) {
+            alert('Error: No se encontró el carrito del usuario');
+            return;
+        }
+
+        const button = event.currentTarget;
+        if (button.disabled) return;
+
+        const quantityInput = document.getElementById('quantity');
+        const quantity = parseInt(quantityInput.value);
+
+        if (isNaN(quantity) || quantity < 1) {
+            alert('Por favor ingrese una cantidad válida');
+            return;
+        }
+
+        try {
+            button.disabled = true;
+            button.innerText = 'Agregando...';
+
+            console.log('Sending request to:', `/api/carts/${cartId}/product/${productId}`);
+            console.log('Quantity:', quantity);
+
+            const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quantity })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error al agregar al carrito');
+            }
+
+            const data = await response.json();
+            console.log('Response:', data);
+
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-success');
+            button.innerText = '¡Agregado!';
+            
+            setTimeout(() => {
+                button.disabled = false;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-primary');
+                button.innerText = 'Agregar al carrito';
+            }, 2000);
+        } catch (error) {
+            console.error('Error:', error);
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-danger');
+            button.innerText = error.message || 'Error al agregar';
+            
+            setTimeout(() => {
+                button.disabled = false;
+                button.classList.remove('btn-danger');
+                button.classList.add('btn-primary');
+                button.innerText = 'Agregar al carrito';
+            }, 2000);
+        }
+    }
+</script>

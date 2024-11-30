@@ -1,0 +1,206 @@
+<style>
+    .btn-outline-secondary {
+        color: var(--text-color);
+        border-color: var(--border-color);
+        background-color: var(--form-bg);
+    }
+
+    .btn-outline-secondary:hover {
+        color: var(--bg-color);
+        background-color: var(--text-color);
+        border-color: var(--text-color);
+    }
+</style>
+
+<div class="container mt-4">
+    <h1>Productos</h1>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <select class="form-select" id="categoryFilter" onchange="applyFilters()">
+                <option value="">Todas las categorías</option>
+                {{#each categories}}
+                    <option value="{{this}}" {{#if (eq this ../currentCategory)}}selected{{/if}}>{{this}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" id="sortFilter" onchange="applyFilters()">
+                <option value="">Sin ordenar</option>
+                <option value="asc" {{#if (eq currentSort "asc")}}selected{{/if}}>Precio: Menor a Mayor</option>
+                <option value="desc" {{#if (eq currentSort "desc")}}selected{{/if}}>Precio: Mayor a Menor</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <div class="input-group">
+                <input type="text" class="form-control" id="searchQuery" placeholder="Buscar productos..." value="{{currentQuery}}" onkeyup="if(event.key === 'Enter') applyFilters()">
+                <button class="btn btn-outline-secondary" type="button" onclick="applyFilters()">Buscar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Productos -->
+    <div class="row">
+        {{#each products}}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {{#if thumbnails.[0]}}
+                        <img src="{{thumbnails.[0]}}" class="card-img-top" alt="{{title}}">
+                    {{else}}
+                        <div class="card-img-top bg-light text-center py-4"></div>
+                    {{/if}}
+                    <div class="card-body">
+                        <h5 class="card-title">{{title}}</h5>
+                        <p class="card-text">{{description}}</p>
+                        <p class="card-text"><small class="text-muted">Categoría: {{category}}</small></p>
+                        <p class="card-text"><strong>Precio: ${{price}}</strong></p>
+                        <p class="card-text">Stock: {{stock}}</p>
+                        <div class="d-grid gap-2">
+                            {{#unless (eq ../user.role "admin")}}
+                                <a href="/products/{{_id}}" class="btn btn-info mb-2">Ver detalles</a>
+                            {{/unless}}
+                            {{#if ../user}}
+                                {{#unless (eq ../user.role "admin")}}
+                                    <button class="btn btn-primary" onclick="addToCart('{{_id}}', event)" data-product-id="{{_id}}">Agregar al carrito</button>
+                                {{/unless}}
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{else}}
+            <div class="col-12">
+                <div class="alert alert-info">No se encontraron productos.</div>
+            </div>
+        {{/each}}
+    </div>
+
+    <!-- Paginación -->
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {{#if hasPrevPage}}
+                <li class="page-item">
+                    <a class="page-link" href="javascript:void(0)" onclick="goToPage({{prevPage}})">Anterior</a>
+                </li>
+            {{else}}
+                <li class="page-item disabled">
+                    <span class="page-link">Anterior</span>
+                </li>
+            {{/if}}
+
+            <li class="page-item active">
+                <span class="page-link">{{page}} de {{totalPages}}</span>
+            </li>
+
+            {{#if hasNextPage}}
+                <li class="page-item">
+                    <a class="page-link" href="javascript:void(0)" onclick="goToPage({{nextPage}})">Siguiente</a>
+                </li>
+            {{else}}
+                <li class="page-item disabled">
+                    <span class="page-link">Siguiente</span>
+                </li>
+            {{/if}}
+        </ul>
+    </nav>
+</div>
+
+<script>
+    const cartId = '{{user.cart}}';
+    console.log('Cart ID:', cartId); // Debug log
+
+    function applyFilters() {
+        const category = document.getElementById('categoryFilter').value;
+        const sort = document.getElementById('sortFilter').value;
+        const query = document.getElementById('searchQuery').value;
+        
+        let url = '/products?';
+        if (category) url += `category=${category}&`;
+        if (sort) url += `sort=${sort}&`;
+        if (query) url += `query=${query}&`;
+        
+        window.location.href = url;
+    }
+
+    function goToPage(page) {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('page', page);
+        window.location.href = currentUrl.toString();
+    }
+
+    async function addToCart(productId, event) {
+        if (!cartId) {
+            showNotification({
+                title: 'Error',
+                text: 'No se encontró el carrito del usuario',
+                icon: 'error',
+                toast: true
+            });
+            return;
+        }
+
+        const button = event.currentTarget;
+        if (button.disabled) return;
+
+        try {
+            button.disabled = true;
+            button.innerText = 'Agregando...';
+
+            console.log('Sending request to:', `/api/carts/${cartId}/products/${productId}`);
+
+            const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quantity: 1 })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error al agregar al carrito');
+            }
+
+            const data = await response.json();
+            console.log('Response:', data);
+
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-success');
+            button.innerText = '¡Agregado!';
+            
+            showNotification({
+                title: '¡Éxito!',
+                text: 'Producto agregado al carrito',
+                icon: 'success',
+                toast: true
+            });
+
+            setTimeout(() => {
+                button.disabled = false;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-primary');
+                button.innerText = 'Agregar al carrito';
+            }, 2000);
+        } catch (error) {
+            console.error('Error:', error);
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-danger');
+            button.innerText = 'Error';
+
+            showNotification({
+                title: 'Error',
+                text: error.message || 'Error al agregar el producto al carrito',
+                icon: 'error',
+                toast: true
+            });
+            
+            setTimeout(() => {
+                button.disabled = false;
+                button.classList.remove('btn-danger');
+                button.classList.add('btn-primary');
+                button.innerText = 'Agregar al carrito';
+            }, 2000);
+        }
+    }
+</script>

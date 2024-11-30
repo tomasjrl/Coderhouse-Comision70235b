@@ -1,0 +1,103 @@
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">{{product.title}}</h2>
+                    <div class="mb-4">
+                        <p class="card-text">{{product.description}}</p>
+                        <p class="card-text"><strong>Código:</strong> {{product.code}}</p>
+                        <p class="card-text"><strong>Precio:</strong> {{formatPrice product.price}}</p>
+                        <p class="card-text"><strong>Stock:</strong> {{product.stock}}</p>
+                        <p class="card-text"><strong>Categoría:</strong> {{product.category}}</p>
+                    </div>
+
+                    {{#if user}}
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Cantidad:</label>
+                            <input type="number" class="form-control" id="quantity" min="1" max="{{product.stock}}" value="1">
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" id="addToCart" data-product-id="{{product._id}}">
+                                Agregar al carrito
+                            </button>
+                        </div>
+                    {{/if}}
+
+                    <div class="mt-3">
+                        <a href="{{backUrl}}" class="btn btn-secondary">Volver</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartButton = document.getElementById('addToCart');
+    if (addToCartButton) {
+        addToCartButton.addEventListener('click', async function() {
+            if (this.disabled) return;
+
+            const productId = this.dataset.productId;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            
+            try {
+                this.disabled = true;
+                this.innerText = 'Agregando...';
+
+                const response = await fetch(`/api/carts/{{user.cart}}/products/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ quantity })
+                });
+                
+                if (response.ok) {
+                    this.classList.remove('btn-primary');
+                    this.classList.add('btn-success');
+                    this.innerText = '¡Agregado!';
+
+                    showNotification({
+                        title: '¡Éxito!',
+                        text: 'Producto agregado al carrito',
+                        icon: 'success',
+                        toast: true
+                    });
+
+                    setTimeout(() => {
+                        this.disabled = false;
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-primary');
+                        this.innerText = 'Agregar al carrito';
+                    }, 2000);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Error al agregar al carrito');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-danger');
+                this.innerText = 'Error';
+
+                showNotification({
+                    title: 'Error',
+                    text: error.message || 'Error al agregar el producto al carrito',
+                    icon: 'error',
+                    toast: true
+                });
+
+                setTimeout(() => {
+                    this.disabled = false;
+                    this.classList.remove('btn-danger');
+                    this.classList.add('btn-primary');
+                    this.innerText = 'Agregar al carrito';
+                }, 2000);
+            }
+        });
+    }
+});
+</script>
