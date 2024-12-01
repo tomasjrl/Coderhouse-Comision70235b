@@ -31,4 +31,9 @@ export default class ProductRepository {
     async delete(id) {
         return await this.dao.delete(id);
     }
+
+    async update(id, productData) {
+        const updatedProduct = await this.dao.update(id, productData);
+        return updatedProduct ? new ProductDTO(updatedProduct) : null;
+    }
 }

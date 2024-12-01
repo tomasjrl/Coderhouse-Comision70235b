@@ -100,6 +100,81 @@ window.clearCart = async function(cartId) {
     }
 };
 
+// Función para finalizar la compra
+window.finalizePurchase = async function(cartId) {
+    if (!cartId) {
+        console.error('Error: No se proporcionó el ID del carrito');
+        return;
+    }
+
+    try {
+        const result = await Swal.fire({
+            title: '¿Confirmar compra?',
+            text: "¿Deseas concretar la compra de todos los productos en el carrito?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, concretar compra',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            const response = await fetch(`/api/carts/${cartId}/purchase`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Error al procesar la compra');
+            }
+
+            if (data.failedProducts && data.failedProducts.length > 0) {
+                // Algunos productos no pudieron ser comprados
+                await Swal.fire({
+                    title: 'Compra parcialmente completada',
+                    html: `
+                        <p>Algunos productos no pudieron ser comprados por falta de stock:</p>
+                        <ul>
+                            ${data.failedProducts.map(item => `
+                                <li>${item.product.title} (${item.quantity} unidades)</li>
+                            `).join('')}
+                        </ul>
+                        <p>Los demás productos fueron comprados exitosamente.</p>
+                        <p>Número de ticket: ${data.ticket.code}</p>
+                    `,
+                    icon: 'warning'
+                });
+            } else {
+                // Compra exitosa de todos los productos
+                await Swal.fire({
+                    title: '¡Compra exitosa!',
+                    html: `
+                        <p>Tu compra se ha procesado correctamente.</p>
+                        <p>Número de ticket: ${data.ticket.code}</p>
+                        <p>Total: $${data.ticket.amount.toFixed(2)}</p>
+                    `,
+                    icon: 'success'
+                });
+            }
+
+            // Recargar la página para mostrar el carrito actualizado
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error',
+            text: error.message || 'No se pudo procesar la compra',
+            icon: 'error'
+        });
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     // Formulario de productos
     const productForm = document.getElementById('productForm');

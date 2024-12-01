@@ -1,4 +1,5 @@
 import Cart from '../../models/cart.model.js';
+import Ticket from '../../models/ticket.model.js';
 
 class CartManager {
     async create() {
@@ -77,12 +78,26 @@ class CartManager {
 
     async clearCart(cartId) {
         try {
-            const cart = await Cart.findByIdAndUpdate(
-                cartId,
-                { $set: { products: [] } },
-                { new: true }
-            ).lean();
-            return cart;
+            const cart = await Cart.findById(cartId);
+            if (!cart) {
+                throw new Error('Carrito no encontrado');
+            }
+            
+            cart.products = [];
+            return await cart.save();
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async createTicket(ticketData) {
+        try {
+            const ticket = new Ticket({
+                amount: ticketData.amount,
+                purchaser: ticketData.purchaser
+            });
+            await ticket.save();
+            return ticket;
         } catch (error) {
             throw error;
         }

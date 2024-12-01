@@ -65,11 +65,12 @@ class ProductManager {
 
     async update(id, productData) {
         try {
-            return await Product.findByIdAndUpdate(
+            const updatedProduct = await Product.findByIdAndUpdate(
                 id,
                 { $set: productData },
                 { new: true }
             ).lean();
+            return updatedProduct;
         } catch (error) {
             throw error;
         }

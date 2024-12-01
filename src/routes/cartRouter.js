@@ -88,14 +88,34 @@ const cartRouter = () => {
             }
     });
 
-    // Realizar compra
-    router.post('/:cid/purchase',
+    // Finalizar compra
+    router.post('/:cid/purchase', 
         checkCartOwnership,
         checkPurchasePermissions,
         async (req, res, next) => {
             try {
-                // Implementar lógica de compra
-                res.json({ status: 'success' });
+                const cart = await cartRepository.getById(req.params.cid);
+                if (!cart) {
+                    throw new NotFoundError('Carrito no encontrado');
+                }
+
+                if (!cart.products || cart.products.length === 0) {
+                    throw new ValidationError('El carrito está vacío');
+                }
+
+                // Verificar stock y procesar la compra
+                const purchaseResult = await cartRepository.processPurchase(req.params.cid, req.session.user.email);
+                
+                if (purchaseResult.success) {
+                    res.json({ 
+                        status: 'success', 
+                        message: 'Compra realizada exitosamente',
+                        ticket: purchaseResult.ticket,
+                        failedProducts: purchaseResult.failedProducts
+                    });
+                } else {
+                    throw new ValidationError('No se pudo procesar la compra');
+                }
             } catch (error) {
                 next(error);
             }

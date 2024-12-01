@@ -118,12 +118,9 @@
                     <button class="btn btn-danger" onclick="clearCart('{{cart._id}}')">
                         <i class="fas fa-trash-alt"></i> Vaciar Carrito
                     </button>
-                    <div>
-                        <h4>Total: {{formatPrice (reduce products (lambda 'acc' 'item' '(add acc (multiply item.price item.quantity))') 0)}}</h4>
-                        <button class="btn btn-success" onclick="finalizePurchase('{{cart._id}}')">
-                            <i class="fas fa-shopping-cart"></i> Finalizar Compra
-                        </button>
-                    </div>
+                    <button class="btn btn-success" onclick="finalizePurchase('{{cart._id}}')">
+                        <i class="fas fa-shopping-cart"></i> COMPRAR
+                    </button>
                 </div>
             </div>
         </div>
