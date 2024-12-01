@@ -102,6 +102,21 @@ const cartRouter = () => {
     });
 
     // Vaciar carrito
+    router.delete('/:cid/clear', 
+        checkCartOwnership,
+        async (req, res, next) => {
+            try {
+                const cart = await cartRepository.clearCart(req.params.cid);
+                if (!cart) {
+                    throw new NotFoundError('Carrito no encontrado');
+                }
+                res.json({ status: 'success', message: 'Carrito vaciado exitosamente' });
+            } catch (error) {
+                next(error);
+            }
+    });
+
+    // Vaciar carrito
     router.delete('/:cid', async (req, res, next) => {
         try {
             const cart = await cartRepository.clearCart(req.params.cid);

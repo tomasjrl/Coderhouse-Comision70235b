@@ -1,9 +1,19 @@
-const socket = io();
+// Inicialización de socket solo si estamos en una página que lo necesita
+let socket;
+if (typeof io !== 'undefined') {
+    socket = io();
 
-// Manejo de productos en tiempo real
-socket.on('products', (products) => {
-    updateProductList(products);
-});
+    // Manejo de productos en tiempo real
+    socket.on('products', (products) => {
+        updateProductList(products);
+    });
+
+    // Manejo de errores
+    socket.on('error', (error) => {
+        console.error('Error del servidor:', error);
+        alert('Error: ' + error.message);
+    });
+}
 
 function updateProductList(products) {
     const productList = document.querySelector('#productList');
@@ -39,7 +49,57 @@ function createProductElement(product) {
     return div;
 }
 
-// Manejo de formularios
+// Función para vaciar el carrito (definida globalmente)
+window.clearCart = async function(cartId) {
+    if (!cartId) {
+        console.error('Error: No se proporcionó el ID del carrito');
+        return;
+    }
+
+    try {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Se eliminarán todos los productos del carrito",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, vaciar carrito',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            const response = await fetch(`/api/carts/${cartId}/clear`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error al vaciar el carrito');
+            }
+
+            await Swal.fire(
+                '¡Carrito vaciado!',
+                'Tu carrito ha sido vaciado exitosamente',
+                'success'
+            );
+
+            // Recargar la página para mostrar el carrito vacío
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire(
+            'Error',
+            error.message || 'No se pudo vaciar el carrito',
+            'error'
+        );
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     // Formulario de productos
     const productForm = document.getElementById('productForm');
@@ -65,7 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.ok) {
                     alert('Producto agregado exitosamente');
                     productForm.reset();
-                    socket.emit('getProducts');
+                    if (socket) {
+                        socket.emit('getProducts');
+                    }
                 } else {
                     throw new Error('Error al agregar producto');
                 }
@@ -132,10 +194,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 2000);
         }
     }
-
-    // Manejo de errores
-    socket.on('error', (error) => {
-        console.error('Error del servidor:', error);
-        alert('Error: ' + error.message);
-    });
 });
