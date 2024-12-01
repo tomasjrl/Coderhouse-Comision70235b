@@ -2,7 +2,7 @@ import express from 'express';
 import ProductManager from "../dao/managersDB/productManager.js";
 import CartManager from "../dao/managersDB/cartManager.js";
 import User from "../models/user.model.js";
-import { isAuthenticated, isAdmin } from "../middleware/auth.js";
+import { isAuthenticated, isAdmin } from "../middlewares/auth.js";
 
 const viewsRouter = express.Router();
 const productManager = new ProductManager();

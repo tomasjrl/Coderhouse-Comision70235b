@@ -1,6 +1,5 @@
 import express from 'express';
-import { isAuthenticated } from '../middleware/auth.js';
-import { checkRole, checkProductPermissions, ROLES } from '../middlewares/authorization.js';
+import { isAuthenticated, checkRole, checkProductPermissions, ROLES } from '../middlewares/auth.js';
 import { productRepository } from '../repositories/index.js';
 import { ValidationError, NotFoundError } from '../utils/errorHandler.js';
 

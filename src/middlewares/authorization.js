@@ -34,9 +34,9 @@ export const checkCartOwnership = async (req, res, next) => {
             throw new ValidationError('Cart ID is required');
         }
 
-        // Si es admin, permitir acceso
+        // Si es admin, denegar acceso a operaciones del carrito
         if (req.session.user.role === ROLES.ADMIN) {
-            return next();
+            throw new ForbiddenError('Administrators cannot perform cart operations');
         }
 
         // Si el usuario no tiene un carrito asignado, permitir crear uno
