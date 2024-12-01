@@ -5,28 +5,66 @@
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Mi Perfil</h2>
                     
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Nombre:</strong> {{user.first_name}}</p>
+                    <div id="profile-content">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p><strong>Nombre:</strong> {{user.first_name}}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Apellido:</strong> {{user.last_name}}</p>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <p><strong>Apellido:</strong> {{user.last_name}}</p>
+                        
+                        <div class="mb-3">
+                            <p><strong>Email:</strong> {{user.email}}</p>
                         </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <p><strong>Email:</strong> {{user.email}}</p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <p><strong>Rol:</strong> {{user.role}}</p>
+                        
+                        <div class="mb-3">
+                            <p><strong>Rol:</strong> {{user.role}}</p>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button id="logout-button" class="btn btn-danger">Cerrar Sesión</button>
+                        </div>
                     </div>
 
-                    <div class="d-grid gap-2">
-                        <a href="/api/sessions/logout" class="btn btn-danger">Cerrar Sesión</a>
+                    <div id="loading" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+
+                    <div id="error-message" class="alert alert-danger mt-3 d-none">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/auth.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    const profileContent = document.getElementById('profile-content');
+    const loading = document.getElementById('loading');
+    const errorMessage = document.getElementById('error-message');
+
+    // Verificar el estado de autenticación al cargar la página
+    loading.classList.remove('d-none');
+    profileContent.classList.add('d-none');
+
+    try {
+        const user = await checkAuthStatus();
+        if (!user) {
+            throw new Error('No se pudo obtener la información del usuario');
+        }
+    } catch (error) {
+        errorMessage.textContent = error.message;
+        errorMessage.classList.remove('d-none');
+    } finally {
+        loading.classList.add('d-none');
+        profileContent.classList.remove('d-none');
+    }
+});
+</script>

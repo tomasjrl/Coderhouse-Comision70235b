@@ -67,14 +67,17 @@ const initializePassport = () => {
     }));
 
     // Estrategia JWT
-    passport.use(new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    passport.use('jwt', new JWTStrategy({
+        jwtFromRequest: ExtractJWT.fromExtractors([
+            ExtractJWT.fromAuthHeaderAsBearerToken(),
+            req => req.cookies.jwt
+        ]),
         secretOrKey: config.jwt.secret
     }, async (jwtPayload, done) => {
         try {
             const user = await userRepository.getById(jwtPayload.id);
             if (!user) {
-                return done(null, false);
+                return done(null, false, { message: 'No se encontró el usuario asociado al token' });
             }
             return done(null, user);
         } catch (error) {
