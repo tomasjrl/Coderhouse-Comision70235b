@@ -5,7 +5,7 @@ export const ROLES = {
     USER: 'user'
 };
 
-// Basic authentication middleware
+// Middleware de autenticación básica
 export const isAuthenticated = (req, res, next) => {
     if (!req.session?.user) {
         if (req.headers.accept?.includes('application/json')) {
@@ -26,7 +26,7 @@ export const isNotAuthenticated = (req, res, next) => {
     next();
 };
 
-// Role-based authorization middleware
+// Middleware de autorización basada en roles
 export const checkRole = (roles) => {
     return (req, res, next) => {
         if (!req.session?.user) {
@@ -41,7 +41,7 @@ export const checkRole = (roles) => {
     };
 };
 
-// Shorthand middleware for common role checks
+// Middleware para verificar rol de administrador
 export const isAdmin = (req, res, next) => {
     if (req.session?.user?.role === ROLES.ADMIN) {
         return next();
@@ -49,27 +49,28 @@ export const isAdmin = (req, res, next) => {
     if (req.headers.accept?.includes('application/json')) {
         return res.status(403).json({ 
             status: 'error',
-            message: 'Acceso denegado. Se requieren permisos de administrador.'
+            message: 'Acceso denegado. Se requieren permisos de administrador'
         });
     }
     return res.status(403).render('error', {
-        error: 'Acceso denegado. Se requieren permisos de administrador.',
+        error: 'Acceso denegado. Se requieren permisos de administrador',
         user: req.session.user,
         title: 'Error - Acceso Denegado'
     });
 };
 
+// Middleware para verificar rol de usuario
 export const isUser = (req, res, next) => {
     if (req.session?.user?.role === ROLES.USER) {
         return next();
     }
     return res.status(403).json({ 
         status: 'error',
-        message: 'Acceso denegado. Se requieren permisos de usuario.' 
+        message: 'Acceso denegado. Se requieren permisos de usuario'
     });
 };
 
-// Cart-specific authorization middleware
+// Middleware para verificar propiedad del carrito
 export const checkCartOwnership = async (req, res, next) => {
     try {
         if (!req.session?.user) {
@@ -102,7 +103,7 @@ export const checkCartOwnership = async (req, res, next) => {
     }
 };
 
-// Product-specific authorization middleware
+// Middleware para verificar permisos de productos
 export const checkProductPermissions = (req, res, next) => {
     const user = req.session.user;
     
@@ -118,7 +119,7 @@ export const checkProductPermissions = (req, res, next) => {
     throw new AuthorizationError('Solo los administradores pueden modificar productos');
 };
 
-// Purchase authorization middleware
+// Middleware para verificar permisos de compra
 export const checkPurchasePermissions = (req, res, next) => {
     const user = req.session.user;
 
