@@ -9,7 +9,6 @@ import passport from 'passport';
 import mongoose from 'mongoose';
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-
 import { config } from './config/config.js';
 import initializePassport from './config/passport.config.js';
 import { errorHandler } from './middlewares/errorHandler.js';

@@ -1,7 +1,10 @@
 import dotenv from 'dotenv';
+import fs from 'fs';
 
-// Cargar variables de entorno desde el archivo .env
-dotenv.config();
+// Cargar variables de entorno desde el archivo .env o .example.env
+const envFilePath = fs.existsSync('.env') ? '.env' : '.example.env';
+dotenv.config({ path: envFilePath });
+console.log(`Loaded environment variables from: ${envFilePath}`);
 
 export const config = {
     server: {
