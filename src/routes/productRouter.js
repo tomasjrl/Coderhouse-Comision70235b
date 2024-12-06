@@ -1,19 +1,24 @@
 import express from 'express';
-import { isAuthenticated, checkRole, checkProductPermissions, ROLES } from '../middlewares/auth.js';
+import { checkRole, checkProductPermissions, ROLES } from '../middlewares/auth.js';
 import { productRepository } from '../repositories/index.js';
 import { ValidationError, NotFoundError } from '../utils/errorHandler.js';
 
 const productRouter = () => {
     const router = express.Router();
 
-    router.use(isAuthenticated);
+    // Middleware para agregar encabezados específicos para la API
+    router.use((req, res, next) => {
+        res.set('Content-Type', 'application/json');
+        res.set('Access-Control-Allow-Origin', '*'); // Ajusta esto según sea necesario
+        next();
+    });
 
     // Obtener todos los productos
     router.get('/', async (req, res, next) => {
         try {
             const { page = 1, limit = 10, sort, query, category } = req.query;
             
-            // Build filter object
+            // Construir objeto de filtro
             let filter = {};
             if (query) {
                 filter.$or = [

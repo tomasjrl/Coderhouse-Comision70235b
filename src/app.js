@@ -45,7 +45,7 @@ app.set('view engine', 'handlebars');
 
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
-app.use(express.urlencoded({extended: true})); 
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Conexión a MongoDB
@@ -82,12 +82,14 @@ const connectToDatabase = async () => {
             next();
         });
 
-        // Rutas
-        app.use('/', viewsRouter);
+        // Rutas - API primero
         app.use('/api/products', productRouter());
         app.use('/api/carts', cartRouter());
         app.use('/api/sessions', sessionsRouter);
         app.use('/api/password', passwordRouter);
+
+        // Rutas de vistas después
+        app.use('/', viewsRouter);
 
         // Manejo de errores
         app.use(errorHandler);
