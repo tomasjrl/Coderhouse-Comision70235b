@@ -2,24 +2,17 @@
 async function checkAuthStatus() {
     try {
         const response = await fetch('/api/sessions/current', {
-            headers: {
-                'Accept': 'application/json'
-            }
+            credentials: 'include'
         });
         
         if (!response.ok) {
-            if (response.status === 401) {
-                // Si no está autenticado, redirigir al login
-                window.location.href = '/login';
-                return;
-            }
-            throw new Error('Error al verificar autenticación');
+            throw new Error('No autorizado');
         }
 
         const data = await response.json();
-        return data.user;
+        return data.payload.user;
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error al verificar autenticación:', error);
         return null;
     }
 }
@@ -27,73 +20,31 @@ async function checkAuthStatus() {
 // Función para cerrar sesión
 async function logout() {
     try {
-        const result = await Swal.fire({
-            title: '¿Estás seguro?',
-            text: "¿Deseas cerrar la sesión?",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, cerrar sesión',
-            cancelButtonText: 'Cancelar'
+        const response = await fetch('/api/sessions/logout', {
+            method: 'POST',
+            credentials: 'include'
         });
 
-        if (result.isConfirmed) {
-            // Mostrar loading
-            Swal.fire({
-                title: 'Cerrando sesión...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            const response = await fetch('/api/sessions/logout', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Limpiar cualquier dato de sesión en el cliente
-                localStorage.removeItem('user');
-                sessionStorage.clear();
-                
-                // Mostrar mensaje de éxito
-                await Swal.fire({
-                    icon: 'success',
-                    title: '¡Sesión cerrada!',
-                    text: 'Has cerrado sesión correctamente.',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-
-                // Redirigir al login
-                window.location.href = data.redirectUrl || '/login';
-            } else {
-                throw new Error(data.message || 'Error al cerrar sesión');
-            }
-        }
+        console.log('Respuesta del servidor:', response.status);
+        
+        // Limpiar datos locales
+        localStorage.removeItem('user');
+        sessionStorage.clear();
+        
+        // Redirigir al login sin importar la respuesta
+        window.location.href = '/login';
     } catch (error) {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.message || 'No se pudo cerrar la sesión. Por favor, intente nuevamente.'
-        });
+        console.error('Error durante el logout:', error);
+        window.location.href = '/login';
     }
 }
 
-// Manejador para el botón de logout
+// Manejador para los botones de logout
 document.addEventListener('DOMContentLoaded', function() {
-    const logoutButton = document.querySelector('#logout-button');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await logout();
-        });
-    }
+    const logoutButtons = document.querySelectorAll('#logout-button, #navbar-logout-button');
+    logoutButtons.forEach(button => {
+        if (button) {
+            button.addEventListener('click', logout);
+        }
+    });
 });

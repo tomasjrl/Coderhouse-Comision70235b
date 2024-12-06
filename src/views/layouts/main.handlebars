@@ -179,9 +179,7 @@
                             <a class="nav-link" href="/profile">Mi Perfil</a>
                         </li>
                         <li class="nav-item">
-                            <form action="/api/sessions/logout" method="POST" style="display: inline;">
-                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">Cerrar Sesión</button>
-                            </form>
+                            <button id="navbar-logout-button" class="nav-link" style="background: none; border: none; cursor: pointer;">Cerrar Sesión</button>
                         </li>
                     {{else}}
                         <li class="nav-item">
@@ -204,6 +202,7 @@
     <script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/main.js"></script>
+    <script src="/js/auth.js"></script>
     <script src="/js/theme.js"></script>
     <script>
         function toggleTheme() {
@@ -236,6 +235,16 @@
                 }
             });
         }
+
+        document.getElementById('navbar-logout-button').addEventListener('click', () => {
+            fetch('/api/sessions/logout', { method: 'POST' })
+                .then(() => {
+                    window.location.href = '/login';
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        });
     </script>
 </body>
 </html>

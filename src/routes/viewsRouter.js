@@ -16,18 +16,52 @@ viewsRouter.get('/', (req, res) => {
     });
 });
 
+// Auth routes with redirections
 viewsRouter.get('/login', (req, res) => {
     if (req.session?.user) {
         return res.redirect('/');
     }
-    res.render('login', { title: 'Login' });
+    
+    // Get error from query params if exists
+    const error = req.query.error ? decodeURIComponent(req.query.error) : null;
+    res.render('login', { 
+        title: 'Login',
+        error
+    });
 });
 
 viewsRouter.get('/register', (req, res) => {
     if (req.session?.user) {
         return res.redirect('/');
     }
-    res.render('register', { title: 'Register' });
+    
+    // Get error from query params if exists
+    const error = req.query.error ? decodeURIComponent(req.query.error) : null;
+    res.render('register', { 
+        title: 'Register',
+        error 
+    });
+});
+
+// Auth success/failure redirects
+viewsRouter.get('/auth/login-success', (req, res) => {
+    res.redirect('/');
+});
+
+viewsRouter.get('/auth/login-failure', (req, res) => {
+    res.redirect('/login?error=' + encodeURIComponent('Error al iniciar sesión'));
+});
+
+viewsRouter.get('/auth/register-success', (req, res) => {
+    res.redirect('/login?message=' + encodeURIComponent('Registro exitoso. Por favor, inicia sesión.'));
+});
+
+viewsRouter.get('/auth/register-failure', (req, res) => {
+    res.redirect('/register?error=' + encodeURIComponent('Error al registrar usuario'));
+});
+
+viewsRouter.get('/auth/logout-success', (req, res) => {
+    res.redirect('/login');
 });
 
 // Password reset routes
@@ -179,10 +213,21 @@ viewsRouter.get('/carts/:cid', isAuthenticated, async (req, res) => {
 });
 
 viewsRouter.get('/profile', isAuthenticated, (req, res) => {
-    res.render('profile', { 
-        user: req.session.user,
-        title: 'Profile'
-    });
+    try {
+        if (!req.session?.user) {
+            return res.redirect('/login');
+        }
+        res.render('profile', { 
+            user: req.session.user,
+            title: 'Mi Perfil'
+        });
+    } catch (error) {
+        console.error('Error al cargar perfil:', error);
+        res.status(500).render('error', {
+            error: 'Error al cargar el perfil',
+            user: req.session.user
+        });
+    }
 });
 
 viewsRouter.get('/realtimeproducts', isAuthenticated, isAdmin, async (req, res) => {

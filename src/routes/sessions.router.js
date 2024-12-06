@@ -9,17 +9,11 @@ const router = express.Router();
 // Registro de usuario
 router.post('/register', passport.authenticate('register', { session: false }), async (req, res, next) => {
     try {
-        // Si la solicitud espera JSON (API)
-        if (req.xhr || req.headers.accept.includes('application/json')) {
-            res.status(201).json({ 
-                status: 'success', 
-                message: 'Usuario registrado exitosamente',
-                user: req.user.toSafeObject()
-            });
-        } else {
-            // Si es una solicitud normal del navegador
-            res.redirect('/login');
-        }
+        res.status(201).json({ 
+            status: 'success', 
+            message: 'Usuario registrado exitosamente',
+            user: req.user.toSafeObject()
+        });
     } catch (error) {
         next(error);
     }
@@ -52,25 +46,18 @@ router.post('/login', (req, res, next) => {
                 // Guardar usuario en la sesión
                 req.session.user = user.toSafeObject();
 
-                // Si la solicitud espera JSON (API)
-                if (req.xhr || req.headers.accept.includes('application/json')) {
-                    return res.json({
-                        status: 'success',
-                        message: 'Login exitoso',
-                        token,
-                        user: user.toSafeObject()
-                    });
-                } else {
-                    // Si es una solicitud normal del navegador
-                    return res.redirect('/');
-                }
+                return res.json({
+                    status: 'success',
+                    message: 'Login exitoso',
+                    token,
+                    user: user.toSafeObject()
+                });
             });
         } catch (error) {
-            if (req.xhr || req.headers.accept.includes('application/json')) {
-                return next(error);
-            } else {
-                return res.redirect('/login?error=' + encodeURIComponent(error.message));
-            }
+            return res.status(401).json({
+                status: 'error',
+                message: error.message || 'Error de autenticación'
+            });
         }
     })(req, res, next);
 });
@@ -78,20 +65,21 @@ router.post('/login', (req, res, next) => {
 // Logout de usuario
 router.post('/logout', async (req, res, next) => {
     try {
+        console.log('Iniciando proceso de logout');
+        
         // Actualizar última conexión si hay usuario
         if (req.user) {
+            console.log('Usuario encontrado, actualizando última conexión');
             await userRepository.update(req.user.id, { last_connection: new Date() });
         }
         
-        // Limpiar la cookie JWT con las mismas opciones con las que fue creada
-        res.clearCookie('jwt', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-        });
+        // Limpiar la cookie JWT
+        console.log('Limpiando cookie JWT');
+        res.clearCookie('jwt');
 
         // Destruir la sesión si existe
         if (req.session) {
+            console.log('Destruyendo sesión');
             req.session.destroy(err => {
                 if (err) {
                     console.error('Error al destruir la sesión:', err);
@@ -99,26 +87,18 @@ router.post('/logout', async (req, res, next) => {
             });
         }
 
-        // Si la solicitud espera JSON (API)
-        if (req.xhr || req.headers.accept.includes('application/json')) {
-            res.json({ 
-                status: 'success', 
-                message: 'Logout exitoso',
-                redirectUrl: '/login'
-            });
-        } else {
-            // Si es una solicitud normal del navegador
-            res.redirect('/login');
-        }
+        console.log('Enviando respuesta de éxito');
+        return res.status(200).json({ 
+            status: 'success', 
+            message: 'Sesión cerrada exitosamente',
+            redirectUrl: '/login'
+        });
     } catch (error) {
-        if (req.xhr || req.headers.accept.includes('application/json')) {
-            res.status(500).json({ 
-                status: 'error', 
-                message: 'Error al cerrar sesión'
-            });
-        } else {
-            next(error);
-        }
+        console.error('Error en logout:', error);
+        return res.status(500).json({
+            status: 'error',
+            message: 'Error al cerrar sesión'
+        });
     }
 });
 
@@ -142,26 +122,20 @@ router.get('/current', (req, res, next) => {
             });
         }
 
-        // Si la petición espera JSON
-        if (req.xhr || req.headers.accept.includes('application/json')) {
-            return res.json({
-                status: 'success',
-                message: 'Usuario autenticado correctamente',
-                payload: {
-                    user: {
-                        id: user.id,
-                        email: user.email,
-                        first_name: user.first_name,
-                        last_name: user.last_name,
-                        role: user.role,
-                        cart: user.cart
-                    }
+        return res.json({
+            status: 'success',
+            message: 'Usuario autenticado correctamente',
+            payload: {
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    role: user.role,
+                    cart: user.cart
                 }
-            });
-        } 
-        
-        // Si es una petición web normal
-        return res.redirect('/profile');
+            }
+        });
     })(req, res, next);
 });
 

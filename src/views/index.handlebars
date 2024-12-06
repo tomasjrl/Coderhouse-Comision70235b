@@ -10,9 +10,7 @@
                 {{else}}
                     <p class="mb-0">¡Hola, {{user.first_name}}!</p>
                 {{/if}}
-                <form action="/api/sessions/logout" method="POST" class="mb-0">
-                    <button type="submit" class="btn btn-outline-danger">Cerrar Sesión</button>
-                </form>
+                <button id="logout-button" class="btn btn-outline-danger">Cerrar Sesión</button>
             </div>
         {{else}}
             <div class="mt-4">
