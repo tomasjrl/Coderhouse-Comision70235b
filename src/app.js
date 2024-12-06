@@ -1,7 +1,6 @@
 import express from 'express';
 import handlebars from 'express-handlebars';
 import http from "http";
-import { Server } from 'socket.io';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import cookieParser from 'cookie-parser';
@@ -17,13 +16,13 @@ import productRouter from './routes/productRouter.js';
 import cartRouter from './routes/cartRouter.js';
 import sessionsRouter from './routes/sessions.router.js';
 import passwordRouter from './routes/passwordRouter.js';
-import { productRepository } from './repositories/index.js';
+import { initializeSocket } from './config/socket.js';
 import helpers from './utils/helpersHandlebars.js';
 
 const app = express();
 const PORT = config.server.port;
 const server = http.createServer(app);
-const io = new Server(server);
+initializeSocket(server);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -92,40 +91,6 @@ const connectToDatabase = async () => {
 
         // Manejo de errores
         app.use(errorHandler);
-
-        // Configuración de Socket.IO
-        io.on('connection', async (socket) => {
-            console.log('Cliente conectado');
-            
-            // Enviar lista inicial de productos
-            const products = await productRepository.getAll();
-            socket.emit('productos', products);
-            
-            // Escuchar eventos del cliente
-            socket.on('eliminarProducto', async (id) => {
-                try {
-                    await productRepository.delete(id);
-                    const updatedProducts = await productRepository.getAll();
-                    io.emit('productos', updatedProducts);
-                } catch (error) {
-                    console.error("Error al eliminar producto:", error);
-                }
-            });
-            
-            socket.on('agregarProducto', async (producto) => {
-                try {
-                    await productRepository.create(producto);
-                    const updatedProducts = await productRepository.getAll();
-                    io.emit('productos', updatedProducts);
-                } catch (error) {
-                    console.error("Error al agregar producto:", error);
-                }
-            });
-            
-            socket.on('disconnect', () => {
-                console.log('Cliente desconectado');
-            });
-        });
 
         // Iniciar el servidor
         server.listen(PORT, () => {
