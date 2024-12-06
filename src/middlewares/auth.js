@@ -5,9 +5,11 @@ export const ROLES = {
     USER: 'user'
 };
 
-// Middleware de autenticación básica
-export const isAuthenticated = (req, res, next) => {
-    if (!req.session?.user) {
+// Middleware de autenticación unificado
+export const checkAuth = (shouldBeAuthenticated = true) => (req, res, next) => {
+    const isUserAuthenticated = !!req.session?.user;
+    
+    if (shouldBeAuthenticated && !isUserAuthenticated) {
         if (req.headers.accept?.includes('application/json')) {
             return res.status(401).json({ 
                 status: 'error',
@@ -16,15 +18,17 @@ export const isAuthenticated = (req, res, next) => {
         }
         return res.redirect('/login');
     }
+    
+    if (!shouldBeAuthenticated && isUserAuthenticated) {
+        return res.redirect('/');
+    }
+    
     next();
 };
 
-export const isNotAuthenticated = (req, res, next) => {
-    if (req.session?.user) {
-        return res.redirect('/');
-    }
-    next();
-};
+// Exportar funciones auxiliares para mantener la compatibilidad
+export const isAuthenticated = checkAuth(true);
+export const isNotAuthenticated = checkAuth(false);
 
 // Middleware de autorización basada en roles
 export const checkRole = (roles) => {
