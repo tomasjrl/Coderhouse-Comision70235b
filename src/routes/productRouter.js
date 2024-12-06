@@ -54,7 +54,7 @@ const productRouter = () => {
 
     // Crear un nuevo producto
     router.post('/', 
-        checkRole([ROLES.ADMIN, ROLES.PREMIUM]), 
+        checkRole([ROLES.ADMIN]), 
         checkProductPermissions,
         async (req, res, next) => {
         try {
@@ -70,7 +70,7 @@ const productRouter = () => {
 
     // Actualizar un producto
     router.put('/:id', 
-        checkRole([ROLES.ADMIN, ROLES.PREMIUM]),
+        checkRole([ROLES.ADMIN]),
         checkProductPermissions,
         async (req, res, next) => {
         try {
@@ -86,7 +86,7 @@ const productRouter = () => {
 
     // Eliminar un producto
     router.delete('/:id', 
-        checkRole([ROLES.ADMIN, ROLES.PREMIUM]),
+        checkRole([ROLES.ADMIN]),
         checkProductPermissions,
         async (req, res, next) => {
         try {

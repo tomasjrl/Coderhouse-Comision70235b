@@ -7,7 +7,7 @@ const cartRouter = () => {
     const router = express.Router();
 
     router.use(isAuthenticated);
-    router.use(checkRole([ROLES.USER, ROLES.PREMIUM]));
+    router.use(checkRole([ROLES.USER]));
 
     // Crear un nuevo carrito
     router.post('/', async (req, res, next) => {
@@ -38,13 +38,9 @@ const cartRouter = () => {
         async (req, res, next) => {
             try {
                 const product = await productRepository.getById(req.params.pid);
-                
-                // Verificar que el usuario premium no agregue sus propios productos
-                if (req.session.user.role === ROLES.PREMIUM && 
-                    product.owner === req.session.user.email) {
-                    throw new ValidationError('No puedes agregar tus propios productos al carrito');
+                if (!product) {
+                    throw new NotFoundError('Producto no encontrado');
                 }
-
                 const result = await cartRepository.addProduct(
                     req.params.cid,
                     req.params.pid,
