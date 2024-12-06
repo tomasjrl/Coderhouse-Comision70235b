@@ -10,9 +10,11 @@ const router = express.Router();
 router.post('/register', passport.authenticate('register', { session: false }), async (req, res, next) => {
     try {
         res.status(201).json({ 
-            status: 'success', 
-            message: 'Usuario registrado exitosamente',
-            user: req.user.toSafeObject()
+            status: 'success',
+            payload: {
+                user: req.user.toSafeObject()
+            },
+            message: 'Usuario registrado exitosamente'
         });
     } catch (error) {
         next(error);
@@ -24,15 +26,33 @@ router.post('/login', (req, res, next) => {
     passport.authenticate('login', { session: false }, async (err, user, info) => {
         try {
             if (err) {
-                return next(err);
+                return res.status(500).json({
+                    status: 'error',
+                    error: err.message,
+                    details: 'Error interno del servidor'
+                });
             }
             
             if (!user) {
-                throw new AuthenticationError(info?.message || 'Credenciales inválidas');
+                return res.status(401).json({
+                    status: 'error',
+                    error: 'UNAUTHORIZED',
+                    message: info?.message || 'Credenciales inválidas',
+                    details: {
+                        reason: 'Autenticación fallida',
+                        action: 'Verifique sus credenciales'
+                    }
+                });
             }
 
             req.login(user, { session: false }, async (error) => {
-                if (error) return next(error);
+                if (error) {
+                    return res.status(500).json({
+                        status: 'error',
+                        error: error.message,
+                        details: 'Error al iniciar sesión'
+                    });
+                }
 
                 const token = generateToken(user);
                 await userRepository.update(user.id, { last_connection: new Date() });
@@ -48,75 +68,70 @@ router.post('/login', (req, res, next) => {
 
                 return res.json({
                     status: 'success',
-                    message: 'Login exitoso',
-                    token,
-                    user: user.toSafeObject()
+                    payload: {
+                        user: user.toSafeObject(),
+                        token
+                    },
+                    message: 'Login exitoso'
                 });
             });
         } catch (error) {
-            return res.status(401).json({
+            return res.status(500).json({
                 status: 'error',
-                message: error.message || 'Error de autenticación'
+                error: error.message,
+                details: 'Error inesperado durante el login'
             });
         }
     })(req, res, next);
 });
 
 // Logout de usuario
-router.post('/logout', async (req, res, next) => {
+router.post('/logout', async (req, res) => {
     try {
-        console.log('Iniciando proceso de logout');
-        
         // Actualizar última conexión si hay usuario
         if (req.user) {
-            console.log('Usuario encontrado, actualizando última conexión');
             await userRepository.update(req.user.id, { last_connection: new Date() });
         }
         
         // Limpiar la cookie JWT
-        console.log('Limpiando cookie JWT');
         res.clearCookie('jwt');
 
         // Destruir la sesión si existe
         if (req.session) {
-            console.log('Destruyendo sesión');
-            req.session.destroy(err => {
-                if (err) {
-                    console.error('Error al destruir la sesión:', err);
-                }
-            });
+            req.session.destroy();
         }
 
-        console.log('Enviando respuesta de éxito');
-        return res.status(200).json({ 
-            status: 'success', 
-            message: 'Sesión cerrada exitosamente',
-            redirectUrl: '/login'
+        return res.json({ 
+            status: 'success',
+            message: 'Sesión cerrada exitosamente'
         });
     } catch (error) {
-        console.error('Error en logout:', error);
         return res.status(500).json({
             status: 'error',
-            message: 'Error al cerrar sesión'
+            error: error.message,
+            details: 'Error al cerrar sesión'
         });
     }
 });
 
 // Obtener usuario actual
-router.get('/current', (req, res, next) => {
+router.get('/current', (req, res) => {
     passport.authenticate('jwt', { session: false }, (err, user, info) => {
         if (err) {
-            return next(new Error('Error en la autenticación: ' + err.message));
+            return res.status(500).json({
+                status: 'error',
+                error: err.message,
+                details: 'Error al verificar autenticación'
+            });
         }
 
-        // Si no hay usuario (token inválido o expirado)
         if (!user) {
             return res.status(401).json({
                 status: 'error',
-                code: 'UNAUTHORIZED',
-                message: info?.message || 'No autorizado. Token no válido o expirado',
+                error: 'UNAUTHORIZED',
+                message: info?.message || 'No autorizado',
                 details: {
-                    reason: info?.message || 'Token no proporcionado o inválido',
+                    reason: 'Token no válido o expirado',
                     action: 'Por favor, inicie sesión nuevamente'
                 }
             });
@@ -124,7 +139,6 @@ router.get('/current', (req, res, next) => {
 
         return res.json({
             status: 'success',
-            message: 'Usuario autenticado correctamente',
             payload: {
                 user: {
                     id: user.id,
@@ -136,7 +150,7 @@ router.get('/current', (req, res, next) => {
                 }
             }
         });
-    })(req, res, next);
+    })(req, res);
 });
 
 export default router;

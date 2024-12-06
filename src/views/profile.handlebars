@@ -8,23 +8,19 @@
                     <div id="profile-content" class="d-none">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <p><strong>Nombre:</strong> <span id="user-firstname"></span></p>
+                                <p><strong>Nombre:</strong> <span id="userName"></span></p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Apellido:</strong> <span id="user-lastname"></span></p>
+                                <p><strong>Email:</strong> <span id="userEmail"></span></p>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <p><strong>Email:</strong> <span id="user-email"></span></p>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <p><strong>Rol:</strong> <span id="user-role"></span></p>
+                            <p><strong>Rol:</strong> <span id="userRole"></span></p>
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button id="logout-button" class="btn btn-danger">Cerrar Sesión</button>
+                            <button id="logoutButton" class="btn btn-danger">Cerrar Sesión</button>
                         </div>
                     </div>
 
@@ -45,30 +41,73 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/js/auth.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', async function() {
-    const profileContent = document.getElementById('profile-content');
-    const loading = document.getElementById('loading');
-    const errorMessage = document.getElementById('error-message');
-
+// Función para cargar los datos del perfil
+async function loadProfileData() {
     try {
-        const user = await checkAuthStatus();
-        if (!user) {
-            throw new Error('No se pudo obtener la información del usuario');
+        const response = await fetch('/api/sessions/current', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error al cargar el perfil');
         }
 
-        // Actualizar la información del usuario en el DOM
-        document.getElementById('user-firstname').textContent = user.first_name;
-        document.getElementById('user-lastname').textContent = user.last_name;
-        document.getElementById('user-email').textContent = user.email;
-        document.getElementById('user-role').textContent = user.role;
-
-        // Mostrar el contenido y ocultar el loading
-        profileContent.classList.remove('d-none');
+        const data = await response.json();
+        if (data.status === 'success' && data.payload.user) {
+            const user = data.payload.user;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userName').textContent = `${user.first_name} ${user.last_name}`;
+            document.getElementById('userRole').textContent = user.role;
+            document.getElementById('profile-content').classList.remove('d-none');
+            document.getElementById('loading').classList.add('d-none');
+        } else {
+            throw new Error('No se pudo cargar la información del usuario');
+        }
     } catch (error) {
-        errorMessage.textContent = error.message;
-        errorMessage.classList.remove('d-none');
-    } finally {
-        loading.classList.add('d-none');
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Error al cargar el perfil'
+        });
+        document.getElementById('error-message').textContent = error.message;
+        document.getElementById('error-message').classList.remove('d-none');
+        document.getElementById('loading').classList.add('d-none');
+    }
+}
+
+// Cargar datos cuando la página se carga
+document.addEventListener('DOMContentLoaded', loadProfileData);
+
+// Manejar el logout
+document.getElementById('logoutButton')?.addEventListener('click', async () => {
+    try {
+        const response = await fetch('/api/sessions/logout', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'include'
+        });
+
+        const data = await response.json();
+        if (data.status === 'success') {
+            window.location.href = '/login';
+        } else {
+            throw new Error(data.message || 'Error al cerrar sesión');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Error al cerrar sesión'
+        });
     }
 });
 </script>
