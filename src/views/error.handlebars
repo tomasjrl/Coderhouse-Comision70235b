@@ -1,59 +1,46 @@
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h2 class="text-center mb-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error de Acceso
-                    </h2>
-                </div>
-                <div class="card-body text-center">
-                    <div class="mb-4">
-                        <i class="fas fa-lock fa-4x text-danger mb-3 d-block"></i>
-                        <p class="lead text-danger">{{error}}</p>
-                    </div>
-                    <div class="alert alert-info" role="alert">
-                        <p class="mb-0">Si necesitas acceso a esta sección, por favor contacta al administrador del sistema.</p>
-                    </div>
-                    <div class="mt-4">
-                        <a href="/" class="btn btn-primary me-2">
-                            <i class="fas fa-home me-2"></i>
-                            Volver al Inicio
-                        </a>
-                        <a href="/products" class="btn btn-secondary">
-                            <i class="fas fa-shopping-cart me-2"></i>
-                            Ver Productos
-                        </a>
-                    </div>
-                </div>
-            </div>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+          <h2 class="text-center mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Error de Acceso
+          </h2>
         </div>
+        <div class="card-body text-center">
+          <div class="mb-4">
+            <i class="fas fa-lock fa-4x text-danger mb-3 d-block"></i>
+            <p class="lead text-danger">{{error}}</p>
+          </div>
+          <div class="alert alert-info" role="alert">
+            <p class="mb-0">Si necesitas acceso a esta sección, por favor
+              contacta al administrador del sistema.</p>
+          </div>
+          <div class="mt-4">
+            <a href="/" class="btn btn-primary me-2">
+              <i class="fas fa-home me-2"></i>
+              Volver al Inicio
+            </a>
+            <a href="/products" class="btn btn-secondary">
+              <i class="fas fa-shopping-cart me-2"></i>
+              Ver Productos
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+/>
 
 <style>
-    .card {
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-    }
-
-    .btn {
-        transition: all 0.3s ease;
-    }
-
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-
-    .alert {
-        border-left: 4px solid #17a2b8;
-    }
+  .card { box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: transform 0.3s
+  ease; } .card:hover { transform: translateY(-5px); } .btn { transition: all
+  0.3s ease; } .btn:hover { transform: translateY(-2px); box-shadow: 0 2px 4px
+  rgba(0,0,0,0.2); } .alert { border-left: 4px solid #17a2b8; }
 </style>

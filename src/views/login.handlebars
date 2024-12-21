@@ -1,98 +1,64 @@
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title text-center mb-4">Iniciar Sesión</h2>
-                <form id="loginForm" action="/api/sessions/login" method="POST">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email:</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña:</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-                        <a href="/forgot-password" class="btn btn-link">¿Olvidaste tu contraseña?</a>
-                    </div>
-                    <div class="text-center mt-3">
-                        <p>¿No tienes una cuenta? <a href="/register">Regístrate aquí</a></p>
-                    </div>
-                </form>
-            </div>
-        </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="card-title text-center mb-4">Iniciar Sesión</h2>
+        <form id="loginForm" action="/api/sessions/login" method="POST">
+          <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña:</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              required
+            />
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            <a href="/forgot-password" class="btn btn-link">¿Olvidaste tu
+              contraseña?</a>
+          </div>
+          <div class="text-center mt-3">
+            <p>¿No tienes una cuenta?
+              <a href="/register">Regístrate aquí</a></p>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    
-    // Manejar mensajes de error o éxito en la URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const error = urlParams.get('error');
-    const message = urlParams.get('message');
-    
-    if (error) {
-        const decodedError = decodeURIComponent(error);
-        Swal.fire({
-            title: 'Error de inicio de sesión',
-            text: decodedError,
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-        });
-    } else if (message) {
-        const decodedMessage = decodeURIComponent(message);
-        Swal.fire({
-            title: 'Información',
-            text: decodedMessage,
-            icon: 'info',
-            confirmButtonText: 'Aceptar'
-        });
-    }
-    
-    // Limpiar parámetros de la URL sin recargar la página
-    if (error || message) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    // Manejar envío del formulario
-    loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const data = {
-            email: formData.get('email'),
-            password: formData.get('password')
-        };
-
-        try {
-            const response = await fetch('/api/sessions/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Error al iniciar sesión');
-            }
-
-            // Redireccionar al home en caso de éxito
-            window.location.href = '/';
-        } catch (error) {
-            Swal.fire({
-                title: 'Error',
-                text: error.message,
-                icon: 'error',
-                confirmButtonText: 'Aceptar'
-            });
-        }
-    });
-});
+  document.addEventListener('DOMContentLoaded', function() { const loginForm =
+  document.getElementById('loginForm'); // Manejar mensajes de error o éxito en
+  la URL const urlParams = new URLSearchParams(window.location.search); const
+  error = urlParams.get('error'); const message = urlParams.get('message'); if
+  (error) { const decodedError = decodeURIComponent(error); Swal.fire({ title:
+  'Error de inicio de sesión', text: decodedError, icon: 'error',
+  confirmButtonText: 'Aceptar' }); } else if (message) { const decodedMessage =
+  decodeURIComponent(message); Swal.fire({ title: 'Información', text:
+  decodedMessage, icon: 'info', confirmButtonText: 'Aceptar' }); } // Limpiar
+  parámetros de la URL sin recargar la página if (error || message) {
+  window.history.replaceState({}, document.title, window.location.pathname); }
+  // Manejar envío del formulario loginForm.addEventListener('submit', async
+  function(e) { e.preventDefault(); const formData = new FormData(this); const
+  data = { email: formData.get('email'), password: formData.get('password') };
+  try { const response = await fetch('/api/sessions/login', { method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+  body: JSON.stringify(data) }); const result = await response.json(); if
+  (!response.ok) { throw new Error(result.message || 'Error al iniciar sesión');
+  } // Redireccionar al home en caso de éxito window.location.href = '/'; }
+  catch (error) { Swal.fire({ title: 'Error', text: error.message, icon:
+  'error', confirmButtonText: 'Aceptar' }); } }); });
 </script>

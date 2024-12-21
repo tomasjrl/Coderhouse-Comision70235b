@@ -1,115 +1,86 @@
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title text-center mb-4">Registro</h2>
-                <form id="registerForm" action="/api/sessions/register" method="POST">
-                    <div class="mb-3">
-                        <label for="first_name" class="form-label">Nombre:</label>
-                        <input type="text" class="form-control" id="first_name" name="first_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="last_name" class="form-label">Apellido:</label>
-                        <input type="text" class="form-control" id="last_name" name="last_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email:</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña:</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Registrarse</button>
-                    </div>
-                </form>
-                <div class="text-center mt-3">
-                    <p>¿Ya tienes una cuenta? <a href="/login">Inicia sesión aquí</a></p>
-                </div>
-            </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="card-title text-center mb-4">Registro</h2>
+        <form id="registerForm" action="/api/sessions/register" method="POST">
+          <div class="mb-3">
+            <label for="first_name" class="form-label">Nombre:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="first_name"
+              name="first_name"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="last_name" class="form-label">Apellido:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="last_name"
+              name="last_name"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña:</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              required
+            />
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Registrarse</button>
+          </div>
+        </form>
+        <div class="text-center mt-3">
+          <p>¿Ya tienes una cuenta? <a href="/login">Inicia sesión aquí</a></p>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const registerForm = document.getElementById('registerForm');
-    
-    // Manejar mensajes de error o éxito en la URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const error = urlParams.get('error');
-    const message = urlParams.get('message');
-    
-    if (error) {
-        const decodedError = decodeURIComponent(error);
-        Swal.fire({
-            title: 'Error de registro',
-            text: decodedError,
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-        });
-    } else if (message) {
-        const decodedMessage = decodeURIComponent(message);
-        Swal.fire({
-            title: 'Información',
-            text: decodedMessage,
-            icon: 'info',
-            confirmButtonText: 'Aceptar'
-        });
-    }
-    
-    // Limpiar parámetros de la URL sin recargar la página
-    if (error || message) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    // Manejar envío del formulario
-    registerForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const data = {
-            first_name: formData.get('first_name'),
-            last_name: formData.get('last_name'),
-            email: formData.get('email'),
-            password: formData.get('password')
-        };
-
-        try {
-            const response = await fetch('/api/sessions/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Error al registrar usuario');
-            }
-
-            // Mostrar mensaje de éxito y redireccionar al login
-            await Swal.fire({
-                title: 'Registro exitoso',
-                text: 'Te redirigiremos al login para que inicies sesión',
-                icon: 'success',
-                timer: 2000,
-                showConfirmButton: false
-            });
-
-            window.location.href = '/login';
-        } catch (error) {
-            Swal.fire({
-                title: 'Error',
-                text: error.message,
-                icon: 'error',
-                confirmButtonText: 'Aceptar'
-            });
-        }
-    });
-});
+  document.addEventListener('DOMContentLoaded', function() { const registerForm
+  = document.getElementById('registerForm'); // Manejar mensajes de error o
+  éxito en la URL const urlParams = new URLSearchParams(window.location.search);
+  const error = urlParams.get('error'); const message =
+  urlParams.get('message'); if (error) { const decodedError =
+  decodeURIComponent(error); Swal.fire({ title: 'Error de registro', text:
+  decodedError, icon: 'error', confirmButtonText: 'Aceptar' }); } else if
+  (message) { const decodedMessage = decodeURIComponent(message); Swal.fire({
+  title: 'Información', text: decodedMessage, icon: 'info', confirmButtonText:
+  'Aceptar' }); } // Limpiar parámetros de la URL sin recargar la página if
+  (error || message) { window.history.replaceState({}, document.title,
+  window.location.pathname); } // Manejar envío del formulario
+  registerForm.addEventListener('submit', async function(e) {
+  e.preventDefault(); const formData = new FormData(this); const data = {
+  first_name: formData.get('first_name'), last_name: formData.get('last_name'),
+  email: formData.get('email'), password: formData.get('password') }; try {
+  const response = await fetch('/api/sessions/register', { method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+  body: JSON.stringify(data) }); const result = await response.json(); if
+  (!response.ok) { throw new Error(result.message || 'Error al registrar
+  usuario'); } // Mostrar mensaje de éxito y redireccionar al login await
+  Swal.fire({ title: 'Registro exitoso', text: 'Te redirigiremos al login para
+  que inicies sesión', icon: 'success', timer: 2000, showConfirmButton: false
+  }); window.location.href = '/login'; } catch (error) { Swal.fire({ title:
+  'Error', text: error.message, icon: 'error', confirmButtonText: 'Aceptar' });
+  } }); });
 </script>

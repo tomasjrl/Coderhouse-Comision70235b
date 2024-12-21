@@ -1,261 +1,131 @@
 <h1>Gestión de Productos</h1>
 
 <div class="product-form">
-    <h2>Agregar Producto</h2>
-    <div id="statusMessage" class="status-message"></div>
-    <form id="productForm">
-        <input type="hidden" id="productId" name="id">
-        <div>
-            <label for="title">Título:</label>
-            <input type="text" id="title" name="title" required>
-        </div>
-        <div>
-            <label for="description">Descripción:</label>
-            <textarea id="description" name="description" required></textarea>
-        </div>
-        <div>
-            <label for="price">Precio:</label>
-            <input type="number" id="price" name="price" step="0.01" required>
-        </div>
-        <div>
-            <label for="code">Código:</label>
-            <input type="text" id="code" name="code" required>
-        </div>
-        <div>
-            <label for="stock">Stock:</label>
-            <input type="number" id="stock" name="stock" required>
-        </div>
-        <div>
-            <label for="category">Categoría:</label>
-            <input type="text" id="category" name="category" required>
-        </div>
-        <button type="submit" id="submitBtn">Agregar Producto</button>
-    </form>
+  <h2>Agregar Producto</h2>
+  <div id="statusMessage" class="status-message"></div>
+  <form id="productForm">
+    <input type="hidden" id="productId" name="id" />
+    <div>
+      <label for="title">Título:</label>
+      <input type="text" id="title" name="title" required />
+    </div>
+    <div>
+      <label for="description">Descripción:</label>
+      <textarea id="description" name="description" required></textarea>
+    </div>
+    <div>
+      <label for="price">Precio:</label>
+      <input type="number" id="price" name="price" step="0.01" required />
+    </div>
+    <div>
+      <label for="code">Código:</label>
+      <input type="text" id="code" name="code" required />
+    </div>
+    <div>
+      <label for="stock">Stock:</label>
+      <input type="number" id="stock" name="stock" required />
+    </div>
+    <div>
+      <label for="category">Categoría:</label>
+      <input type="text" id="category" name="category" required />
+    </div>
+    <button type="submit" id="submitBtn">Agregar Producto</button>
+  </form>
 </div>
 
 <div class="products-list">
-    <h2>Lista de Productos</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Título</th>
-                <th>Descripción</th>
-                <th>Precio</th>
-                <th>Código</th>
-                <th>Stock</th>
-                <th>Categoría</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="productList">
-            {{#each products}}
-            <tr data-id="{{this._id}}">
-                <td>{{this.title}}</td>
-                <td>{{this.description}}</td>
-                <td>${{this.price}}</td>
-                <td>{{this.code}}</td>
-                <td>{{this.stock}}</td>
-                <td>{{this.category}}</td>
-                <td>
-                    <button class="delete-btn" onclick="deleteProduct('{{this._id}}')">Eliminar</button>
-                </td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
+  <h2>Lista de Productos</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Descripción</th>
+        <th>Precio</th>
+        <th>Código</th>
+        <th>Stock</th>
+        <th>Categoría</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="productList">
+      {{#each products}}
+        <tr data-id="{{this._id}}">
+          <td>{{this.title}}</td>
+          <td>{{this.description}}</td>
+          <td>${{this.price}}</td>
+          <td>{{this.code}}</td>
+          <td>{{this.stock}}</td>
+          <td>{{this.category}}</td>
+          <td>
+            <button
+              class="delete-btn"
+              onclick="deleteProduct('{{this._id}}')"
+            >Eliminar</button>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
 </div>
 
 <style>
-    :root {
-        --form-bg: #333;
-        --border-color: #555;
-        --bg-color: #444;
-        --text-color: #fff;
-        --primary-color: #007bff;
-        --button-text: #fff;
-        --secondary-color: #6c757d;
-        --table-header-bg: #555;
-
-        --hover-bg: #666;
-      --success-bg: #d4edda;
-        --success-text: #155724;
-        --error-bg: #f8d7da;
-        --error-text: #721c24;
-    }
-
-    .product-form {
-        max-width: 600px;
-        margin: 20px auto;
-        padding: 20px;
-        background-color: var(--form-bg);
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-    }
-
-    .product-form div {
-        margin-bottom: 15px;
-    }
-
-    .product-form label {
-        display: block;
-        margin-bottom: 5px;
-        color: var(--text-color);
-    }
-
-    .product-form input,
-    .product-form textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-    }
-
-    .product-form button {
-        padding: 10px 20px;
-        margin-right: 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    #submitBtn {
-        background-color: var(--primary-color);
-        color: var(--button-text);
-    }
-
-    #clearBtn {
-        background-color: var(--secondary-color);
-        color: var(--button-text);
-    }
-
-    .products-list {
-        margin: 20px auto;
-        padding: 20px;
-        background-color: var(--form-bg);
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th, td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid var(--border-color);
-        color: var(--text-color);
-    }
-
-    th {
-        background-color: var(--table-header-bg);
-    }
-
-
-     tr:hover {
-        background-color: var(--hover-bg);
-    }
-    .edit-btn, .delete-btn {
-        padding: 5px 10px;
-        margin: 0 5px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        color: var(--button-text);
-    }
-
-    .edit-btn {
-        background-color: var(--primary-color);
-    }
-
-    .delete-btn {
-        background-color: #dc3545;
-    }
-
-    .status-message {
-        padding: 10px;
-        margin-bottom: 15px;
-        border-radius: 4px;
-        display: none;
-    }
-
-    .success {
-        background-color: var(--success-bg);
-        color: var(--success-text);
-        display: block;
-    }
-
-    .error {
-        background-color: var(--error-bg);
-        color: var(--error-text);
-        display: block;
-    }
+  :root { --form-bg: #333; --border-color: #555; --bg-color: #444; --text-color:
+  #fff; --primary-color: #007bff; --button-text: #fff; --secondary-color:
+  #6c757d; --table-header-bg: #555; --hover-bg: #666; --success-bg: #d4edda;
+  --success-text: #155724; --error-bg: #f8d7da; --error-text: #721c24; }
+  .product-form { max-width: 600px; margin: 20px auto; padding: 20px;
+  background-color: var(--form-bg); border-radius: 8px; border: 1px solid
+  var(--border-color); } .product-form div { margin-bottom: 15px; }
+  .product-form label { display: block; margin-bottom: 5px; color:
+  var(--text-color); } .product-form input, .product-form textarea { width:
+  100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;
+  background-color: var(--bg-color); color: var(--text-color); } .product-form
+  button { padding: 10px 20px; margin-right: 10px; border: none; border-radius:
+  4px; cursor: pointer; } #submitBtn { background-color: var(--primary-color);
+  color: var(--button-text); } #clearBtn { background-color:
+  var(--secondary-color); color: var(--button-text); } .products-list { margin:
+  20px auto; padding: 20px; background-color: var(--form-bg); border-radius:
+  8px; border: 1px solid var(--border-color); } table { width: 100%;
+  border-collapse: collapse; margin-top: 20px; } th, td { padding: 12px;
+  text-align: left; border-bottom: 1px solid var(--border-color); color:
+  var(--text-color); } th { background-color: var(--table-header-bg); } tr:hover
+  { background-color: var(--hover-bg); } .edit-btn, .delete-btn { padding: 5px
+  10px; margin: 0 5px; border: none; border-radius: 4px; cursor: pointer; color:
+  var(--button-text); } .edit-btn { background-color: var(--primary-color); }
+  .delete-btn { background-color: #dc3545; } .status-message { padding: 10px;
+  margin-bottom: 15px; border-radius: 4px; display: none; } .success {
+  background-color: var(--success-bg); color: var(--success-text); display:
+  block; } .error { background-color: var(--error-bg); color: var(--error-text);
+  display: block; }
 </style>
 
 <script>
-    const socket = io();
-    const productForm = document.getElementById('productForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const statusMessage = document.getElementById('statusMessage');
-    let editingProductId = null;
-
-    // Función para mostrar mensajes de estado
-    function showMessage(message, type) {
-        statusMessage.textContent = message;
-        statusMessage.className = `status-message ${type}`;
-        setTimeout(() => {
-            statusMessage.style.display = 'none';
-        }, 3000);
-    }
-
-    // Manejar el envío del formulario
-    productForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = {
-            title: document.getElementById('title').value,
-            description: document.getElementById('description').value,
-            price: parseFloat(document.getElementById('price').value),
-            code: document.getElementById('code').value,
-            stock: parseInt(document.getElementById('stock').value),
-            category: document.getElementById('category').value,
-            status: true
-        };
-
-        try {
-            if (editingProductId) {
-                // Actualizar producto existente
-                socket.emit('updateProduct', { id: editingProductId, ...formData });
-                showMessage('Producto actualizado exitosamente', 'success');
-            } else {
-                // Agregar nuevo producto
-                socket.emit('addProduct', formData);
-                showMessage('Producto agregado exitosamente', 'success');
-            }
-            
-            clearForm();
-        } catch (error) {
-            showMessage('Error al procesar el producto', 'error');
-            console.error('Error:', error);
-        }
-    });
-
-    clearBtn.addEventListener('click', clearForm);
-
-    // Función para eliminar producto
-    function deleteProduct(productId) {
-        if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-            socket.emit('deleteProduct', productId);
-        }
-    }
-
-    // Manejar errores del servidor
-    socket.on('error', (error) => {
-        showMessage(error.message || 'Error en la operación', 'error');
-    });
+  const socket = io(); const productForm =
+  document.getElementById('productForm'); const submitBtn =
+  document.getElementById('submitBtn'); const clearBtn =
+  document.getElementById('clearBtn'); const statusMessage =
+  document.getElementById('statusMessage'); let editingProductId = null; //
+  Función para mostrar mensajes de estado function showMessage(message, type) {
+  statusMessage.textContent = message; statusMessage.className = `status-message
+  ${type}`; setTimeout(() => { statusMessage.style.display = 'none'; }, 3000); }
+  // Manejar el envío del formulario productForm.addEventListener('submit',
+  async (e) => { e.preventDefault(); const formData = { title:
+  document.getElementById('title').value, description:
+  document.getElementById('description').value, price:
+  parseFloat(document.getElementById('price').value), code:
+  document.getElementById('code').value, stock:
+  parseInt(document.getElementById('stock').value), category:
+  document.getElementById('category').value, status: true }; try { if
+  (editingProductId) { // Actualizar producto existente
+  socket.emit('updateProduct', { id: editingProductId, ...formData });
+  showMessage('Producto actualizado exitosamente', 'success'); } else { //
+  Agregar nuevo producto socket.emit('addProduct', formData);
+  showMessage('Producto agregado exitosamente', 'success'); } clearForm(); }
+  catch (error) { showMessage('Error al procesar el producto', 'error');
+  console.error('Error:', error); } }); clearBtn.addEventListener('click',
+  clearForm); // Función para eliminar producto function
+  deleteProduct(productId) { if (confirm('¿Está seguro de que desea eliminar
+  este producto?')) { socket.emit('deleteProduct', productId); } } // Manejar
+  errores del servidor socket.on('error', (error) => { showMessage(error.message
+  || 'Error en la operación', 'error'); });
 </script>
