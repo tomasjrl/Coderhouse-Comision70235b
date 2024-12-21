@@ -9,7 +9,7 @@ Link para acceder a la aplicación: `http://localhost:8080`
 
 2. ## Credenciales de Prueba
 
-Autenticación: `Roles de usuario (admin/usuario)` [configurado en .env]
+Autenticación: `Roles de usuario (admin/usuario)` [se implementa .example.env (si no existe .env)]
 
 - Admin = `Email: adminCoder@coder.com  Password: adminCod3r123`
 - User = `Email: tstabilini@gmail.com  Password: 12345678`
