@@ -2,38 +2,19 @@
 
 Proyecto de e-commerce desarrollado con Node.js, Express y MongoDB.
 
-## Ejecutar el Proyecto
+1.  ## Ejecutar el Proyecto
 
-1. Iniciar el servidor:
-```bash
-npm start
-```
+Iniciar el servidor en modo dev: `npm run start:dev`
+Link para acceder a la aplicación: `http://localhost:8080`
 
-2. Acceder a la aplicación:
-   - Abrir el navegador en `http://localhost:8080`
+2. ## Credenciales de Prueba
 
-- **Autenticación**: 
-  - Roles de usuario (admin/usuario)
+Autenticación: `Roles de usuario (admin/usuario)` [configurado en .env]
 
-## Credenciales de Prueba
+- Admin = `Email: adminCoder@coder.com  Password: adminCod3r123`
+- User = `Email: tstabilini@gmail.com  Password: 12345678`
 
-### Admin
-- Email: [configurado en .env]
-- Password: [configurado en .env]
-
-## Estructura del Proyecto
-
-```
-src/
-├── config/         # Configuración de la aplicación
-├── models/         # Modelos de MongoDB
-├── routes/         # Rutas de la aplicación
-├── views/          # Plantillas Handlebars
-├── public/         # Archivos estáticos
-└── scripts/        # Scripts de utilidad
-```
-
-## Tecnologías Utilizadas
+3. ## Tecnologías Utilizadas
 
 - Backend: Node.js, Express
 - Base de datos: MongoDB

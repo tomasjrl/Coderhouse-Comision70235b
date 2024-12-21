@@ -1,102 +1,120 @@
-import passport from 'passport';
-import local from 'passport-local';
-import jwt from 'passport-jwt';
-import bcrypt from 'bcrypt';
-import { userRepository, cartRepository } from '../repositories/index.js';
-import { ValidationError, AuthenticationError } from '../utils/errorHandler.js';
-import config from './config.js';
+import passport from "passport";
+import local from "passport-local";
+import jwt from "passport-jwt";
+import bcrypt from "bcrypt";
+import { userRepository, cartRepository } from "../repositories/index.js";
+import config from "./config.js";
 
 const LocalStrategy = local.Strategy;
 const JWTStrategy = jwt.Strategy;
 const ExtractJWT = jwt.ExtractJwt;
 
 const initializePassport = () => {
-    // Estrategia de registro
-    passport.use('register', new LocalStrategy({
-        usernameField: 'email',
-        passwordField: 'password',
-        passReqToCallback: true
-    }, async (req, email, password, done) => {
+  passport.use(
+    "register",
+    new LocalStrategy(
+      {
+        usernameField: "email",
+        passwordField: "password",
+        passReqToCallback: true,
+      },
+      async (req, email, password, done) => {
         try {
-            const existingUser = await userRepository.getByEmail(email);
-            if (existingUser) {
-                return done(null, false, { message: 'El correo electrónico ya está registrado' });
-            }
+          const existingUser = await userRepository.getByEmail(email);
+          if (existingUser) {
+            return done(null, false, {
+              message: "El correo electrónico ya está registrado",
+            });
+          }
 
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const cart = await cartRepository.create();
+          const hashedPassword = await bcrypt.hash(password, 10);
+          const cart = await cartRepository.create();
 
-            const userData = {
-                ...req.body,
-                password: hashedPassword,
-                cart: cart.id
-            };
+          const userData = {
+            ...req.body,
+            password: hashedPassword,
+            cart: cart.id,
+          };
 
-            const newUser = await userRepository.create(userData);
-            done(null, newUser);
+          const newUser = await userRepository.create(userData);
+          done(null, newUser);
         } catch (error) {
-            done(error);
+          done(error);
         }
-    }));
+      }
+    )
+  );
 
-    // Estrategia de login
-    passport.use('login', new LocalStrategy({
-        usernameField: 'email',
-        passwordField: 'password'
-    }, async (email, password, done) => {
+  passport.use(
+    "login",
+    new LocalStrategy(
+      {
+        usernameField: "email",
+        passwordField: "password",
+      },
+      async (email, password, done) => {
         try {
-            const user = await userRepository.getByEmail(email);
-            
-            if (!user) {
-                return done(null, false, { 
-                    message: 'Usuario no encontrado' 
-                });
-            }
+          const user = await userRepository.getByEmail(email);
 
-            const isValidPassword = await bcrypt.compare(password, user.password);
-            if (!isValidPassword) {
-                return done(null, false, { 
-                    message: 'Contraseña incorrecta' 
-                });
-            }
+          if (!user) {
+            return done(null, false, {
+              message: "Usuario no encontrado",
+            });
+          }
 
-            return done(null, user);
+          const isValidPassword = await bcrypt.compare(password, user.password);
+          if (!isValidPassword) {
+            return done(null, false, {
+              message: "Contraseña incorrecta",
+            });
+          }
+
+          return done(null, user);
         } catch (error) {
-            return done(error);
+          return done(error);
         }
-    }));
+      }
+    )
+  );
 
-    // Estrategia JWT
-    passport.use('jwt', new JWTStrategy({
+  passport.use(
+    "jwt",
+    new JWTStrategy(
+      {
         jwtFromRequest: ExtractJWT.fromExtractors([
-            ExtractJWT.fromAuthHeaderAsBearerToken(),
-            req => req.cookies.jwt
+          ExtractJWT.fromAuthHeaderAsBearerToken(),
+          (req) => req.cookies.jwt,
         ]),
-        secretOrKey: config.jwt.secret
-    }, async (jwtPayload, done) => {
+        secretOrKey: config.jwt.secret,
+      },
+      async (jwtPayload, done) => {
         try {
-            const user = await userRepository.getById(jwtPayload.id);
-            if (!user) {
-                return done(null, false, { message: 'No se encontró el usuario asociado al token' });
-            }
-            return done(null, user);
+          const user = await userRepository.getById(jwtPayload.id);
+          if (!user) {
+            return done(null, false, {
+              message: "No se encontró el usuario asociado al token",
+            });
+          }
+          return done(null, user);
         } catch (error) {
-            return done(error);
+          return done(error);
         }
-    }));
+      }
+    )
+  );
 
-    passport.serializeUser((user, done) => {
-        done(null, user.id);
-    });
+  passport.serializeUser((user, done) => {
+    done(null, user.id);
+  });
 
-    passport.deserializeUser(async (id, done) => {
-        try {
-            const user = await userRepository.getById(id);
-            done(null, user);
-        } catch (error) {
-            done(error);
-        }
-    });
+  passport.deserializeUser(async (id, done) => {
+    try {
+      const user = await userRepository.getById(id);
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
+  });
 };
 
 export default initializePassport;
