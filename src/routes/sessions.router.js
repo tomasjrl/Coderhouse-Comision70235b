@@ -1,7 +1,6 @@
 import express from "express";
 import passport from "passport";
 import { userRepository } from "../repositories/index.js";
-import { ValidationError, AuthenticationError } from "../utils/errorHandler.js";
 import { generateToken } from "../utils/jwt.js";
 
 const router = express.Router();
@@ -62,7 +61,6 @@ router.post("/login", (req, res, next) => {
           const token = generateToken(user);
           await userRepository.update(user.id, { last_connection: new Date() });
 
-          // Establecer la cookie JWT
           res.cookie("jwt", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",

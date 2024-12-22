@@ -7,7 +7,7 @@ import {
   ROLES,
 } from "../middlewares/auth.js";
 import { cartRepository, productRepository } from "../repositories/index.js";
-import { ValidationError, NotFoundError } from "../utils/errorHandler.js";
+import { NotFoundError } from "../utils/errorHandler.js";
 import { Ticket } from "../models/ticket.model.js";
 
 const cartRouter = () => {
