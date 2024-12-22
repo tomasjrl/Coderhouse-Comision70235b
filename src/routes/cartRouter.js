@@ -8,6 +8,7 @@ import {
 } from "../middlewares/auth.js";
 import { cartRepository, productRepository } from "../repositories/index.js";
 import { ValidationError, NotFoundError } from "../utils/errorHandler.js";
+import { Ticket } from "../models/ticket.model.js";
 
 const cartRouter = () => {
   const router = express.Router();
@@ -101,24 +102,53 @@ const cartRouter = () => {
           throw new NotFoundError("Carrito no encontrado");
         }
 
-        if (!cart.products || cart.products.length === 0) {
-          throw new ValidationError("El carrito está vacío");
+        const failedProducts = [];
+        const successfulProducts = [];
+        let totalAmount = 0;
+
+        for (const item of cart.products) {
+          const product = await productRepository.getById(item.product._id);
+          
+          if (!product) {
+            failedProducts.push(item.product._id);
+            continue;
+          }
+
+          if (product.stock >= item.quantity) {
+            product.stock -= item.quantity;
+            await productRepository.update(product._id, { stock: product.stock });
+            
+            successfulProducts.push(item.product._id);
+            totalAmount += product.price * item.quantity;
+          } else {
+            failedProducts.push(item.product._id);
+          }
         }
 
-        const purchaseResult = await cartRepository.processPurchase(
-          req.params.cid,
-          req.session.user.email
-        );
+        if (successfulProducts.length > 0) {
+          const ticket = await Ticket.create({
+            amount: totalAmount,
+            purchaser: req.user.email
+          });
 
-        if (purchaseResult.success) {
+          cart.products = cart.products.filter(item => 
+            failedProducts.includes(item.product._id.toString())
+          );
+          await cart.save();
+
           res.json({
             status: "success",
-            message: "Compra realizada exitosamente",
-            ticket: purchaseResult.ticket,
-            failedProducts: purchaseResult.failedProducts,
+            data: {
+              ticket,
+              failedProducts: failedProducts.length > 0 ? failedProducts : undefined
+            }
           });
         } else {
-          throw new ValidationError("No se pudo procesar la compra");
+          res.status(400).json({
+            status: "error",
+            message: "No se pudo procesar ningún producto",
+            failedProducts
+          });
         }
       } catch (error) {
         next(error);
