@@ -68,14 +68,8 @@ router.post("/login", (req, res, next) => {
 
           req.session.user = user.toSafeObject();
 
-          return res.json({
-            status: "success",
-            payload: {
-              user: user.toSafeObject(),
-              token,
-            },
-            message: "Login exitoso",
-          });
+          // Redirigir al usuario a la página principal después del login exitoso
+          return res.redirect('/');
         });
       } catch (error) {
         return res.status(500).json({
@@ -100,15 +94,23 @@ router.post("/logout", async (req, res) => {
       req.session.destroy();
     }
 
-    return res.json({
-      status: "success",
-      message: "Sesión cerrada exitosamente",
-    });
+    // Verificar si la petición espera una respuesta JSON
+    const acceptHeader = req.get('Accept') || '';
+    if (acceptHeader.includes('application/json')) {
+      return res.status(200).json({
+        status: "success",
+        message: "Sesión cerrada exitosamente"
+      });
+    }
+
+    // Si es una petición del navegador, redirigir a login
+    return res.redirect('/login');
   } catch (error) {
+    console.error("Error en logout:", error);
     return res.status(500).json({
       status: "error",
       error: error.message,
-      details: "Error al cerrar sesión",
+      details: "Error al cerrar la sesión"
     });
   }
 });

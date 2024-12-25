@@ -12,7 +12,7 @@ Link para acceder a la aplicación: `http://localhost:8080`
 Autenticación: `Roles de usuario (admin/usuario)` [se implementa .example.env (si no existe .env)]
 
 - Admin = `Email: adminCoder@coder.com  Password: adminCod3r123`
-- User = `Email: tstabilini@gmail.com  Password: 12345678`
+- User = `Email: userCoder@coder.com  Password: 12345678`
 
 3. ## Tecnologías Utilizadas
 
@@ -21,12 +21,6 @@ Autenticación: `Roles de usuario (admin/usuario)` [se implementa .example.env (
 - Autenticación: Passport.js
 - Frontend: Handlebars, Bootstrap
 - Estado: Express-session
-
-## Notas Adicionales
-
-- La aplicación utiliza MongoDB Atlas como base de datos
-- Las contraseñas se almacenan hasheadas usando bcrypt
-- La interfaz es responsive y soporta tema claro/oscuro
 
 ## Contacto
 

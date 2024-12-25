@@ -42,27 +42,77 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() { const
-  addToCartButton = document.getElementById('addToCart'); if (addToCartButton) {
-  addToCartButton.addEventListener('click', async function() { if
-  (this.disabled) return; const productId = this.dataset.productId; const
-  quantity = parseInt(document.getElementById('quantity').value); try {
-  this.disabled = true; this.innerText = 'Agregando...'; const response = await
-  fetch(`/api/carts/{{user.cart}}/products/${productId}`, { method: 'POST',
-  headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-  quantity }) }); if (response.ok) { this.classList.remove('btn-primary');
-  this.classList.add('btn-success'); this.innerText = '¡Agregado!';
-  showNotification({ title: '¡Éxito!', text: 'Producto agregado al carrito',
-  icon: 'success', toast: true }); setTimeout(() => { this.disabled = false;
-  this.classList.remove('btn-success'); this.classList.add('btn-primary');
-  this.innerText = 'Agregar al carrito'; }, 2000); } else { const errorData =
-  await response.json(); throw new Error(errorData.message || 'Error al agregar
-  al carrito'); } } catch (error) { console.error('Error:', error);
-  this.classList.remove('btn-primary'); this.classList.add('btn-danger');
-  this.innerText = 'Error'; showNotification({ title: 'Error', text:
-  error.message || 'Error al agregar el producto al carrito', icon: 'error',
-  toast: true }); setTimeout(() => { this.disabled = false;
-  this.classList.remove('btn-danger'); this.classList.add('btn-primary');
-  this.innerText = 'Agregar al carrito'; }, 2000); } }); } });
+  const cartId = '{{user.cart}}';
+  console.log('Cart ID:', cartId);
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const addToCartButton = document.getElementById('addToCart');
+    
+    if (addToCartButton) {
+      addToCartButton.addEventListener('click', async function() {
+        if (this.disabled) return;
+
+        const productId = this.dataset.productId;
+        const quantity = parseInt(document.getElementById('quantity').value);
+
+        try {
+          this.disabled = true;
+          this.innerText = 'Agregando...';
+
+          const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ quantity })
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            this.classList.remove('btn-primary');
+            this.classList.add('btn-success');
+            this.innerText = '¡Agregado!';
+            
+            Swal.fire({
+              title: '¡Éxito!',
+              text: 'Producto agregado al carrito',
+              icon: 'success',
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000
+            });
+          } else {
+            throw new Error(data.message || 'Error al agregar al carrito');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          this.classList.remove('btn-primary');
+          this.classList.add('btn-danger');
+          this.innerText = 'Error';
+          
+          Swal.fire({
+            title: 'Error',
+            text: error.message || 'Error al agregar el producto al carrito',
+            icon: 'error',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+        } finally {
+          setTimeout(() => {
+            this.disabled = false;
+            this.classList.remove('btn-success', 'btn-danger');
+            this.classList.add('btn-primary');
+            this.innerText = 'Agregar al carrito';
+          }, 2000);
+        }
+      });
+    }
+  });
 </script>

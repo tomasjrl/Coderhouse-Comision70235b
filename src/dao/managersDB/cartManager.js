@@ -61,13 +61,16 @@ class CartManager {
 
   async updateCart(cartId, products) {
     try {
-      const cart = await Cart.findByIdAndUpdate(
-        cartId,
-        { $set: { products } },
-        { new: true }
-      ).lean();
-      return cart;
+      const cart = await Cart.findById(cartId);
+      if (!cart) {
+        throw new Error("Carrito no encontrado");
+      }
+
+      cart.products = products;
+      await cart.save();
+      return cart.toObject();
     } catch (error) {
+      console.error("Error al actualizar carrito:", error);
       throw error;
     }
   }
@@ -88,13 +91,19 @@ class CartManager {
 
   async createTicket(ticketData) {
     try {
+      if (!ticketData.amount || !ticketData.purchaser) {
+        throw new Error("Datos de ticket inválidos");
+      }
+
       const ticket = new Ticket({
         amount: ticketData.amount,
-        purchaser: ticketData.purchaser,
+        purchaser: ticketData.purchaser
       });
+
       await ticket.save();
-      return ticket;
+      return ticket.toObject();
     } catch (error) {
+      console.error("Error al crear ticket:", error);
       throw error;
     }
   }

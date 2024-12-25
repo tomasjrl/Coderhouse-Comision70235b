@@ -118,54 +118,49 @@ window.finalizePurchase = async function (cartId) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Error al procesar la compra");
+        throw new Error(data.error || "Error al procesar la compra");
       }
 
-      if (data.failedProducts && data.failedProducts.length > 0) {
+      if (data.status === "success" && data.data && data.data.ticket) {
+        // Compra exitosa
+        let message = `¡Compra exitosa!<br>Ticket: ${data.data.ticket.code}<br>Total: $${data.data.ticket.amount}`;
+        
+        if (data.data.failedProducts && data.data.failedProducts.length > 0) {
+          message += '<br><br>Algunos productos no pudieron ser comprados por falta de stock:';
+          message += '<ul>';
+          data.data.failedProducts.forEach(item => {
+            message += `<li>${item.product.title} (${item.quantity} unidades)</li>`;
+          });
+          message += '</ul>';
+        }
+
         await Swal.fire({
-          title: "Compra parcialmente completada",
-          html: `
-                        <p>Algunos productos no pudieron ser comprados por falta de stock:</p>
-                        <ul>
-                            ${data.failedProducts
-                              .map(
-                                (item) => `
-                                <li>${item.product.title} (${item.quantity} unidades)</li>
-                            `
-                              )
-                              .join("")}
-                        </ul>
-                        <p>Los demás productos fueron comprados exitosamente.</p>
-                        <p>Número de ticket: ${data.ticket.code}</p>
-                    `,
-          icon: "warning",
-        });
-      } else {
-        await Swal.fire({
-          title: "¡Compra exitosa!",
-          html: `
-                        <p>Tu compra se ha procesado correctamente.</p>
-                        <p>Número de ticket: ${data.ticket.code}</p>
-                        <p>Total: $${data.ticket.amount.toFixed(2)}</p>
-                    `,
+          title: "¡Compra Realizada!",
+          html: message,
           icon: "success",
+          confirmButtonText: "Aceptar"
         });
-      }
 
-      window.location.reload();
+        // Recargar la página para actualizar el carrito
+        window.location.reload();
+      } else {
+        throw new Error("Error al procesar la compra: Respuesta inválida del servidor");
+      }
     }
   } catch (error) {
-    console.error("Error:", error);
-    Swal.fire({
+    console.error("Error en la compra:", error);
+    await Swal.fire({
       title: "Error",
       text: error.message || "No se pudo procesar la compra",
       icon: "error",
+      confirmButtonText: "Aceptar"
     });
   }
 };

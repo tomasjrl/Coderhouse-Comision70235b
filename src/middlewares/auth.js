@@ -124,10 +124,15 @@ export const checkProductPermissions = (req, res, next) => {
 };
 
 export const checkPurchasePermissions = (req, res, next) => {
-  const user = req.session.user;
+  // Verificar usuario en sesión o en req.user (para API)
+  const user = req.session?.user || req.user;
 
   if (!user) {
     throw new AuthenticationError("Por favor, inicia sesión primero");
+  }
+
+  if (!user.email) {
+    throw new AuthenticationError("Email de usuario no disponible");
   }
 
   if (user.role === ROLES.ADMIN) {
@@ -136,5 +141,7 @@ export const checkPurchasePermissions = (req, res, next) => {
     );
   }
 
+  // Asegurarse de que el usuario esté disponible en req.user
+  req.user = user;
   next();
 };

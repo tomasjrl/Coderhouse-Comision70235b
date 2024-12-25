@@ -8,7 +8,7 @@ import {
 } from "../middlewares/auth.js";
 import { cartRepository, productRepository } from "../repositories/index.js";
 import { NotFoundError } from "../utils/errorHandler.js";
-import { Ticket } from "../models/ticket.model.js";
+import Ticket from "../models/ticket.model.js";
 
 const cartRouter = () => {
   const router = express.Router();
@@ -97,61 +97,48 @@ const cartRouter = () => {
     checkPurchasePermissions,
     async (req, res, next) => {
       try {
-        const cart = await cartRepository.getById(req.params.cid);
-        if (!cart) {
-          throw new NotFoundError("Carrito no encontrado");
-        }
+        const cartId = req.params.cid;
+        const userEmail = req.user?.email || req.session?.user?.email;
 
-        const failedProducts = [];
-        const successfulProducts = [];
-        let totalAmount = 0;
-
-        for (const item of cart.products) {
-          const product = await productRepository.getById(item.product._id);
-          
-          if (!product) {
-            failedProducts.push(item.product._id);
-            continue;
-          }
-
-          if (product.stock >= item.quantity) {
-            product.stock -= item.quantity;
-            await productRepository.update(product._id, { stock: product.stock });
-            
-            successfulProducts.push(item.product._id);
-            totalAmount += product.price * item.quantity;
-          } else {
-            failedProducts.push(item.product._id);
-          }
-        }
-
-        if (successfulProducts.length > 0) {
-          const ticket = await Ticket.create({
-            amount: totalAmount,
-            purchaser: req.user.email
+        if (!userEmail) {
+          return res.status(400).json({
+            status: "error",
+            error: "Usuario no autenticado o email no disponible"
           });
+        }
 
-          cart.products = cart.products.filter(item => 
-            failedProducts.includes(item.product._id.toString())
-          );
-          await cart.save();
+        const result = await cartRepository.processPurchase(cartId, userEmail);
 
-          res.json({
+        if (result.success) {
+          if (!result.ticket) {
+            throw new Error("Error al generar el ticket de compra");
+          }
+
+          return res.status(200).json({
             status: "success",
             data: {
-              ticket,
-              failedProducts: failedProducts.length > 0 ? failedProducts : undefined
+              ticket: {
+                code: result.ticket.code,
+                amount: result.ticket.amount,
+                purchaser: result.ticket.purchaser,
+                purchase_datetime: result.ticket.purchase_datetime
+              },
+              failedProducts: result.failedProducts.length > 0 ? result.failedProducts : []
             }
           });
         } else {
-          res.status(400).json({
+          return res.status(400).json({
             status: "error",
-            message: "No se pudo procesar ningún producto",
-            failedProducts
+            error: "No se pudo procesar ningún producto del carrito",
+            failedProducts: result.failedProducts
           });
         }
       } catch (error) {
-        next(error);
+        console.error("Error en la compra:", error);
+        return res.status(500).json({
+          status: "error",
+          error: error.message || "Error al procesar la compra"
+        });
       }
     }
   );
