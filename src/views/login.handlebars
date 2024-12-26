@@ -51,14 +51,13 @@
   decodedMessage, icon: 'info', confirmButtonText: 'Aceptar' }); } // Limpiar
   parámetros de la URL sin recargar la página if (error || message) {
   window.history.replaceState({}, document.title, window.location.pathname); }
-  // Manejar envío del formulario loginForm.addEventListener('submit', async
   function(e) { e.preventDefault(); const formData = new FormData(this); const
   data = { email: formData.get('email'), password: formData.get('password') };
   try { const response = await fetch('/api/sessions/login', { method: 'POST',
   headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
   body: JSON.stringify(data) }); const result = await response.json(); if
   (!response.ok) { throw new Error(result.message || 'Error al iniciar sesión');
-  } // Redireccionar al home en caso de éxito window.location.href = '/'; }
+  } 
   catch (error) { Swal.fire({ title: 'Error', text: error.message, icon:
   'error', confirmButtonText: 'Aceptar' }); } }); });
 </script>

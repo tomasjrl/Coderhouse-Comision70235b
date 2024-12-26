@@ -148,7 +148,6 @@ window.finalizePurchase = async function (cartId) {
           confirmButtonText: "Aceptar"
         });
 
-        // Recargar la página para actualizar el carrito
         window.location.reload();
       } else {
         throw new Error("Error al procesar la compra: Respuesta inválida del servidor");

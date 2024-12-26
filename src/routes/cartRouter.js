@@ -8,7 +8,6 @@ import {
 } from "../middlewares/auth.js";
 import { cartRepository, productRepository } from "../repositories/index.js";
 import { NotFoundError } from "../utils/errorHandler.js";
-import Ticket from "../models/ticket.model.js";
 
 const cartRouter = () => {
   const router = express.Router();

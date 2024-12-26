@@ -124,7 +124,6 @@ export const checkProductPermissions = (req, res, next) => {
 };
 
 export const checkPurchasePermissions = (req, res, next) => {
-  // Verificar usuario en sesión o en req.user (para API)
   const user = req.session?.user || req.user;
 
   if (!user) {
@@ -141,7 +140,6 @@ export const checkPurchasePermissions = (req, res, next) => {
     );
   }
 
-  // Asegurarse de que el usuario esté disponible en req.user
   req.user = user;
   next();
 };

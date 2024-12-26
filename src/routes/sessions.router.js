@@ -68,7 +68,6 @@ router.post("/login", (req, res, next) => {
 
           req.session.user = user.toSafeObject();
 
-          // Redirigir al usuario a la página principal después del login exitoso
           return res.redirect('/');
         });
       } catch (error) {
@@ -94,7 +93,6 @@ router.post("/logout", async (req, res) => {
       req.session.destroy();
     }
 
-    // Verificar si la petición espera una respuesta JSON
     const acceptHeader = req.get('Accept') || '';
     if (acceptHeader.includes('application/json')) {
       return res.status(200).json({
@@ -103,7 +101,6 @@ router.post("/logout", async (req, res) => {
       });
     }
 
-    // Si es una petición del navegador, redirigir a login
     return res.redirect('/login');
   } catch (error) {
     console.error("Error en logout:", error);

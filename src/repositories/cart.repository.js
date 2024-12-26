@@ -65,7 +65,6 @@ export default class CartRepository {
     }
 
     if (successProducts.length > 0) {
-      // Crear el ticket
       const ticketData = {
         amount: total,
         purchaser: userEmail
@@ -73,7 +72,6 @@ export default class CartRepository {
       
       const ticket = await this.dao.createTicket(ticketData);
 
-      // Actualizar el carrito solo con los productos que fallaron
       await this.dao.updateCart(cartId, failedProducts);
 
       return {
